@@ -7,2072 +7,1392 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PassPhoto">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="AI-powered passport photo maker by Appozi">
-
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>Passport Photo Maker</title>
-<style>
-/* ═══════════════════════════════════════════════════════
-   PASSPORT PHOTO MAKER — Mobile App CSS
-   Appozi © 2025
-═══════════════════════════════════════════════════════ */
-
-/* FONTS */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap');
-
-/* ── TOKENS ───────────────────────────────────────────── */
-:root {
-  /* Colors */
-  --ink:       #0a0e09;
-  --ink2:      #111611;
-  --card:      #161d14;
-  --card2:     #1c2519;
-  --line:      rgba(255,255,255,.07);
-  --line2:     rgba(255,255,255,.12);
-  --fg:        #f0ede8;
-  --fg2:       #9aa896;
-  --fg3:       #5a6657;
-  --green:     #4a9e6a;
-  --green2:    #2d5a3d;
-  --green-gl:  rgba(74,158,106,.15);
-  --gold:      #d4a04a;
-  --gold2:     #a07530;
-  --gold-gl:   rgba(212,160,74,.12);
-  --red:       #e05555;
-  --amber:     #e09040;
-
-  /* Shadows */
-  --sh1: 0 2px 12px rgba(0,0,0,.4);
-  --sh2: 0 8px 32px rgba(0,0,0,.5);
-  --sh3: 0 20px 60px rgba(0,0,0,.6);
-  --glow: 0 0 40px rgba(74,158,106,.2);
-
-  /* Radius */
-  --r4:  4px; --r8:  8px; --r12: 12px;
-  --r16: 16px; --r20: 20px; --r24: 24px;
-  --r32: 32px; --rpill: 100px;
-
-  /* Spacing */
-  --safe-top:    env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-
-  /* Motion */
-  --ease: cubic-bezier(.4,0,.2,1);
-  --spring: cubic-bezier(.34,1.56,.64,1);
-  --t1: .15s; --t2: .25s; --t3: .4s;
-}
-
-/* ── RESET ────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; overflow: hidden; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--ink);
-  color: var(--fg);
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-  -webkit-font-smoothing: antialiased;
-  user-select: none;
-}
-input, button, textarea { font-family: inherit; }
-img, canvas { display: block; }
-
-/* ── APP SHELL ────────────────────────────────────────── */
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-}
-
-/* ── SPLASH ───────────────────────────────────────────── */
-#splash {
-  position: absolute;
-  inset: 0;
-  z-index: 999;
-  background: var(--ink);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 32px;
-  overflow: hidden;
-}
-#splash.exit {
-  animation: splashExit .7s var(--ease) forwards;
-}
-@keyframes splashExit {
-  to { opacity: 0; transform: scale(1.06); pointer-events: none; }
-}
-
-.splash-bg {
-  position: absolute; inset: 0; overflow: hidden;
-}
-.splash-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid;
-  animation: ringPulse 3s ease-in-out infinite;
-}
-.splash-ring:nth-child(1) { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(74,158,106,.18); animation-delay: 0s; }
-.splash-ring:nth-child(2) { width: 340px; height: 340px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(74,158,106,.1); animation-delay: .4s; }
-.splash-ring:nth-child(3) { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(74,158,106,.05); animation-delay: .8s; }
-@keyframes ringPulse {
-  0%,100% { opacity: .5; transform: translate(-50%,-50%) scale(1); }
-  50%      { opacity: 1;  transform: translate(-50%,-50%) scale(1.04); }
-}
-
-.splash-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(74,158,106,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74,158,106,.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  animation: gridSlide 16s linear infinite;
-}
-@keyframes gridSlide { to { transform: translate(48px, 48px); } }
-
-.splash-content { position: relative; z-index: 2; text-align: center; }
-
-.splash-icon {
-  width: 88px; height: 88px;
-  background: linear-gradient(145deg, #1e3828, #0e1e12);
-  border-radius: var(--r24);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 42px;
-  margin: 0 auto 28px;
-  box-shadow: var(--sh2), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(74,158,106,.2);
-  animation: iconPop .7s .1s var(--spring) both;
-}
-@keyframes iconPop {
-  from { opacity: 0; transform: scale(.3) rotate(-20deg); }
-  to   { opacity: 1; transform: scale(1) rotate(0); }
-}
-
-.splash-by {
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .28em;
-  color: var(--gold);
-  text-transform: uppercase;
-  opacity: 0;
-  animation: fadeUp .4s .5s ease both;
-  margin-bottom: 10px;
-}
-.splash-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 2.4rem;
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -.03em;
-  opacity: 0;
-  animation: fadeUp .5s .65s ease both;
-  margin-bottom: 6px;
-}
-.splash-title span { color: var(--green); }
-.splash-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: .68rem;
-  letter-spacing: .16em;
-  color: var(--fg3);
-  text-transform: uppercase;
-  opacity: 0;
-  animation: fadeUp .4s .8s ease both;
-  margin-bottom: 52px;
-}
-
-.splash-bar {
-  width: 160px;
-  height: 2px;
-  background: var(--line);
-  border-radius: 1px;
-  overflow: hidden;
-  margin: 0 auto 10px;
-  opacity: 0;
-  animation: fadeUp .4s .9s ease both;
-}
-.splash-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--green2), var(--gold));
-  border-radius: 1px;
-  animation: barLoad 2.6s 1s var(--ease) forwards;
-  width: 0%;
-}
-@keyframes barLoad {
-  0%  { width: 0%; }
-  35% { width: 50%; }
-  65% { width: 75%; }
-  85% { width: 90%; }
-  100%{ width: 100%; }
-}
-.splash-pct {
-  font-family: 'DM Mono', monospace;
-  font-size: .6rem;
-  color: var(--gold);
-  letter-spacing: .1em;
-  text-align: center;
-  opacity: 0;
-  animation: fadeUp .4s .9s ease both;
-}
-
-.splash-footer {
-  position: absolute;
-  bottom: calc(32px + var(--safe-bottom));
-  left: 0; right: 0;
-  text-align: center;
-  opacity: 0;
-  animation: fadeUp .4s 1s ease both;
-}
-.splash-footer-brand {
-  font-family: 'Syne', sans-serif;
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--fg3);
-  letter-spacing: .06em;
-}
-.splash-footer-brand span { color: var(--gold); }
-
-/* ── STATUS BAR ───────────────────────────────────────── */
-.status-bar {
-  height: calc(44px + var(--safe-top));
-  padding-top: var(--safe-top);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 8px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 10;
-}
-.status-time {
-  font-family: 'DM Mono', monospace;
-  font-size: .78rem;
-  font-weight: 500;
-  color: var(--fg);
-  letter-spacing: .04em;
-}
-.status-icons { display: flex; align-items: center; gap: 6px; }
-.status-icons svg { color: var(--fg); }
-
-/* ── TOP BAR ──────────────────────────────────────────── */
-.topbar {
-  padding: 4px 20px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.topbar-logo {
-  display: flex; align-items: center; gap: 10px;
-}
-.topbar-icon {
-  width: 34px; height: 34px;
-  background: var(--green2);
-  border-radius: var(--r8);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px;
-  box-shadow: 0 2px 8px rgba(45,90,61,.4);
-}
-.topbar-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: -.02em;
-}
-.topbar-name span { color: var(--green); }
-.topbar-badge {
-  font-family: 'DM Mono', monospace;
-  font-size: .6rem;
-  background: var(--green-gl);
-  color: var(--green);
-  border: 1px solid rgba(74,158,106,.2);
-  padding: 4px 9px;
-  border-radius: var(--rpill);
-  letter-spacing: .08em;
-}
-
-/* ── SCROLL AREA ──────────────────────────────────────── */
-#scrollArea {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding-bottom: 8px;
-}
-#scrollArea::-webkit-scrollbar { display: none; }
-
-/* ── SCREENS ──────────────────────────────────────────── */
-.screen {
-  display: none;
-  padding: 0 16px;
-  animation: screenIn .3s var(--ease) both;
-}
-.screen.active { display: block; }
-@keyframes screenIn {
-  from { opacity: 0; transform: translateX(18px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-/* ── UPLOAD SCREEN ────────────────────────────────────── */
-.upload-hero {
-  text-align: center;
-  padding: 8px 0 24px;
-}
-.upload-hero-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: -.03em;
-  line-height: 1.1;
-  margin-bottom: 8px;
-}
-.upload-hero-title span { color: var(--green); }
-.upload-hero-sub {
-  font-size: .85rem;
-  color: var(--fg2);
-  line-height: 1.5;
-}
-
-.upload-zone {
-  background: var(--card);
-  border: 1.5px dashed var(--line2);
-  border-radius: var(--r24);
-  padding: 44px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all var(--t2) var(--ease);
-  margin-bottom: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.upload-zone::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 50%, var(--green-gl), transparent 70%);
-  opacity: 0;
-  transition: opacity var(--t2);
-}
-.upload-zone:active, .upload-zone.drag { border-color: var(--green); background: #1a2e1e; }
-.upload-zone:active::before, .upload-zone.drag::before { opacity: 1; }
-.upload-zone-icon {
-  width: 64px; height: 64px;
-  background: linear-gradient(145deg, var(--green2), #1a2d20);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-  margin: 0 auto 16px;
-  box-shadow: 0 0 0 8px rgba(45,90,61,.15);
-}
-.upload-zone h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-.upload-zone p {
-  font-size: .8rem;
-  color: var(--fg3);
-  margin-bottom: 20px;
-}
-.upload-zone-or {
-  font-size: .72rem;
-  color: var(--fg3);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  margin: 14px 0;
-  font-family: 'DM Mono', monospace;
-}
-
-/* Camera button */
-.btn-camera {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px;
-  background: var(--green2);
-  color: var(--fg);
-  border: none;
-  border-radius: var(--r16);
-  font-family: 'Syne', sans-serif;
-  font-size: .95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--t2) var(--spring);
-  box-shadow: var(--sh1), 0 0 0 0 rgba(74,158,106,.4);
-}
-.btn-camera:active {
-  transform: scale(.97);
-  box-shadow: var(--sh1);
-}
-
-.btn-gallery {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px;
-  background: var(--card);
-  color: var(--fg2);
-  border: 1.5px solid var(--line2);
-  border-radius: var(--r16);
-  font-family: 'DM Sans', sans-serif;
-  font-size: .9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--t2) var(--ease);
-  margin-top: 10px;
-}
-.btn-gallery:active { background: var(--card2); transform: scale(.98); }
-
-/* Feature chips */
-.chips {
-  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px;
-}
-.chip {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--card);
-  border: 1px solid var(--line2);
-  border-radius: var(--rpill);
-  padding: 6px 12px;
-  font-size: .72rem;
-  color: var(--fg2);
-  font-weight: 500;
-}
-.chip.active { background: var(--green-gl); border-color: rgba(74,158,106,.25); color: var(--green); }
-
-/* ── EDIT SCREEN ──────────────────────────────────────── */
-.edit-preview {
-  position: relative;
-  background: var(--card);
-  border-radius: var(--r20);
-  overflow: hidden;
-  margin-bottom: 14px;
-  aspect-ratio: 413/531;
-  max-height: 45vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.edit-preview canvas, .edit-preview img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-.edit-preview-badge {
-  position: absolute;
-  top: 10px; left: 10px;
-  background: rgba(0,0,0,.6);
-  backdrop-filter: blur(8px);
-  color: var(--fg);
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem;
-  padding: 5px 10px;
-  border-radius: var(--rpill);
-  letter-spacing: .06em;
-  border: 1px solid var(--line2);
-}
-.edit-preview-actions {
-  position: absolute;
-  bottom: 10px; right: 10px;
-  display: flex; gap: 7px;
-}
-.preview-action-btn {
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line2);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  font-size: 15px;
-  transition: all var(--t1);
-  color: var(--fg);
-}
-.preview-action-btn:active { transform: scale(.9); background: var(--green2); }
-
-/* PROCESSING OVERLAY */
-.proc-overlay {
-  position: absolute; inset: 0;
-  background: rgba(10,14,9,.88);
-  backdrop-filter: blur(8px);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 14px;
-  z-index: 20;
-  border-radius: var(--r20);
-}
-.proc-spinner {
-  width: 48px; height: 48px;
-  border: 2.5px solid var(--line2);
-  border-top-color: var(--green);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.proc-step {
-  font-family: 'Syne', sans-serif;
-  font-size: .9rem;
-  font-weight: 700;
-  color: var(--green);
-  text-align: center;
-}
-.proc-bar {
-  width: 150px; height: 2px;
-  background: var(--line);
-  border-radius: 1px; overflow: hidden;
-}
-.proc-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--green2), var(--gold));
-  transition: width .4s var(--ease);
-  width: 0%;
-}
-
-/* SECTION HEADERS */
-.section-hdr {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
-}
-.section-title {
-  font-family: 'Syne', sans-serif;
-  font-size: .78rem;
-  font-weight: 700;
-  color: var(--fg3);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.section-action {
-  font-size: .75rem;
-  color: var(--green);
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* ── TOOL CARDS ───────────────────────────────────────── */
-.tool-card {
-  background: var(--card);
-  border-radius: var(--r16);
-  padding: 16px;
-  margin-bottom: 10px;
-  border: 1px solid var(--line);
-}
-.tool-card-hdr {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 14px;
-  cursor: pointer;
-}
-.tool-card-icon {
-  width: 28px; height: 28px;
-  background: var(--green-gl);
-  border-radius: var(--r8);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-}
-.tool-card-label {
-  font-family: 'Syne', sans-serif;
-  font-size: .85rem;
-  font-weight: 700;
-  flex: 1;
-}
-.tool-card-chevron {
-  color: var(--fg3);
-  font-size: .8rem;
-  transition: transform var(--t2);
-}
-.tool-card.collapsed .tool-card-chevron { transform: rotate(-90deg); }
-.tool-card.collapsed .tool-card-body { display: none; }
-
-/* SLIDERS */
-.slider-row {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 12px;
-}
-.slider-label {
-  font-size: .75rem;
-  color: var(--fg2);
-  width: 76px;
-  flex-shrink: 0;
-}
-.slider-track { flex: 1; position: relative; }
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 3px;
-  background: var(--line2);
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: var(--fg);
-  border: 2.5px solid var(--green);
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,.4);
-  transition: transform var(--t1);
-}
-input[type=range]:active::-webkit-slider-thumb {
-  transform: scale(1.3);
-}
-.slider-val {
-  font-family: 'DM Mono', monospace;
-  font-size: .72rem;
-  color: var(--green);
-  width: 28px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-/* BG COLORS */
-.bg-swatches {
-  display: flex; gap: 8px; flex-wrap: wrap;
-}
-.swatch {
-  width: 36px; height: 36px;
-  border-radius: var(--r8);
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all var(--t2) var(--spring);
-  position: relative;
-}
-.swatch:active { transform: scale(.9); }
-.swatch.sel {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px var(--green-gl);
-  transform: scale(1.08);
-}
-.swatch-custom {
-  width: 36px; height: 36px;
-  border-radius: var(--r8);
-  border: 2px dashed var(--line2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.swatch-custom input[type=color] {
-  position: absolute; inset: -4px;
-  width: calc(100%+8px); height: calc(100%+8px);
-  opacity: 0; cursor: pointer;
-}
-
-/* SIZE PILLS */
-.size-pills { display: flex; gap: 7px; flex-wrap: wrap; }
-.size-pill {
-  padding: 7px 14px;
-  background: var(--card2);
-  border: 1px solid var(--line2);
-  border-radius: var(--rpill);
-  font-size: .75rem;
-  font-weight: 500;
-  color: var(--fg2);
-  cursor: pointer;
-  transition: all var(--t2) var(--ease);
-}
-.size-pill:active { transform: scale(.95); }
-.size-pill.sel { background: var(--green-gl); border-color: rgba(74,158,106,.3); color: var(--green); }
-
-/* ── BOTTOM ACTION BAR ────────────────────────────────── */
-.bottom-bar {
-  padding: 10px 16px calc(10px + var(--safe-bottom));
-  background: linear-gradient(to top, var(--ink) 80%, transparent);
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-.btn-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 15px 12px;
-  background: var(--green2);
-  color: var(--fg);
-  border: none;
-  border-radius: var(--r16);
-  font-family: 'Syne', sans-serif;
-  font-size: .95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--t2) var(--spring);
-  box-shadow: var(--sh1);
-}
-.btn-main:active { transform: scale(.97); }
-.btn-main:disabled { opacity: .35; pointer-events: none; }
-.btn-main.gold { background: var(--gold2); }
-
-.btn-icon-bar {
-  width: 52px; height: 52px;
-  background: var(--card);
-  border: 1px solid var(--line2);
-  border-radius: var(--r12);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all var(--t2) var(--ease);
-}
-.btn-icon-bar:active { transform: scale(.93); background: var(--card2); }
-.btn-icon-bar:disabled { opacity: .3; pointer-events: none; }
-
-/* ── BOTTOM NAV ───────────────────────────────────────── */
-.bottom-nav {
-  display: flex;
-  background: var(--card);
-  border-top: 1px solid var(--line);
-  padding-bottom: var(--safe-bottom);
-  flex-shrink: 0;
-}
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 0 6px;
-  cursor: pointer;
-  transition: all var(--t1);
-  position: relative;
-}
-.nav-item:active { background: var(--line); }
-.nav-icon { font-size: 20px; margin-bottom: 2px; transition: transform var(--t2) var(--spring); }
-.nav-label {
-  font-family: 'DM Mono', monospace;
-  font-size: .58rem;
-  color: var(--fg3);
-  letter-spacing: .06em;
-  transition: color var(--t1);
-}
-.nav-item.active .nav-icon { transform: scale(1.12); }
-.nav-item.active .nav-label { color: var(--green); }
-.nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: var(--safe-bottom);
-  left: 50%; transform: translateX(-50%);
-  width: 20px; height: 2px;
-  background: var(--green);
-  border-radius: 1px;
-}
-
-/* ── CROP MODAL ───────────────────────────────────────── */
-.modal-sheet {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: var(--card);
-  border-radius: var(--r24) var(--r24) 0 0;
-  padding: 16px 16px calc(20px + var(--safe-bottom));
-  z-index: 100;
-  transform: translateY(100%);
-  transition: transform .35s var(--ease);
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-}
-.modal-sheet.open { transform: translateY(0); }
-.modal-sheet-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 99;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s;
-}
-.modal-sheet-backdrop.open { opacity: 1; pointer-events: auto; }
-.sheet-handle {
-  width: 36px; height: 3px;
-  background: var(--line2);
-  border-radius: 2px;
-  margin: 0 auto 18px;
-  flex-shrink: 0;
-}
-.sheet-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin-bottom: 14px;
-  flex-shrink: 0;
-}
-
-/* CROP CANVAS */
-.crop-container {
-  flex: 1; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-  min-height: 0;
-}
-#cropWrap {
-  position: relative;
-  display: inline-block;
-  user-select: none;
-  max-width: 100%;
-}
-#cropWrap img {
-  display: block;
-  max-width: 100%;
-  max-height: 52vh;
-  border-radius: var(--r12);
-}
-#cropBox {
-  position: absolute;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,.6);
-  cursor: move;
-  touch-action: none;
-}
-.chandle {
-  position: absolute;
-  width: 14px; height: 14px;
-  background: #fff;
-  border-radius: 3px;
-}
-.chandle.tl { top:-7px;left:-7px;cursor:nw-resize; }
-.chandle.tr { top:-7px;right:-7px;cursor:ne-resize; }
-.chandle.bl { bottom:-7px;left:-7px;cursor:sw-resize; }
-.chandle.br { bottom:-7px;right:-7px;cursor:se-resize; }
-.chandle.tm { top:-7px;left:calc(50% - 7px);cursor:n-resize; }
-.chandle.bm { bottom:-7px;left:calc(50% - 7px);cursor:s-resize; }
-.chandle.ml { top:calc(50% - 7px);left:-7px;cursor:w-resize; }
-.chandle.mr { top:calc(50% - 7px);right:-7px;cursor:e-resize; }
-.crop-grid {
-  position: absolute; inset: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  pointer-events: none; opacity: .25;
-}
-.crop-grid span { border: .5px solid rgba(255,255,255,.7); }
-.crop-info-bar {
-  display: flex; justify-content: center;
-  margin-top: 10px; flex-shrink: 0;
-}
-.crop-info-text {
-  font-family: 'DM Mono', monospace;
-  font-size: .68rem;
-  color: var(--fg3);
-  background: var(--card2);
-  padding: 4px 12px;
-  border-radius: var(--rpill);
-}
-.sheet-footer {
-  display: flex; gap: 8px;
-  margin-top: 14px; flex-shrink: 0;
-}
-
-/* ── RESULT SCREEN ────────────────────────────────────── */
-.result-preview {
-  background: var(--card);
-  border-radius: var(--r20);
-  overflow: hidden;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  min-height: 200px;
-}
-.result-preview canvas {
-  max-width: 100%;
-  max-height: 50vh;
-  border-radius: var(--r8);
-  box-shadow: var(--sh2);
-}
-
-.result-meta {
-  display: flex; gap: 8px; margin-bottom: 14px;
-}
-.meta-pill {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--card);
-  border: 1px solid var(--line2);
-  border-radius: var(--rpill);
-  padding: 6px 12px;
-  font-size: .72rem;
-  color: var(--fg2);
-}
-.meta-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-
-/* 4x sheet mini preview */
-.sheet-mini {
-  background: #fff;
-  border-radius: var(--r12);
-  padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 5px;
-  margin-bottom: 14px;
-}
-.sheet-mini-cell {
-  aspect-ratio: 35/45;
-  border-radius: 3px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,.15);
-}
-.sheet-mini-cell img { width: 100%; height: 100%; object-fit: cover; }
-
-/* ── HISTORY SCREEN ───────────────────────────────────── */
-.history-empty {
-  text-align: center;
-  padding: 60px 24px;
-  color: var(--fg3);
-}
-.history-empty .ico { font-size: 3rem; opacity: .3; margin-bottom: 14px; }
-.history-empty h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--fg2);
-}
-.history-empty p { font-size: .82rem; line-height: 1.5; }
-.history-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.history-item {
-  aspect-ratio: 35/45;
-  border-radius: var(--r12);
-  overflow: hidden;
-  background: var(--card);
-  cursor: pointer;
-  position: relative;
-  transition: transform var(--t2) var(--spring);
-}
-.history-item:active { transform: scale(.94); }
-.history-item img { width: 100%; height: 100%; object-fit: cover; }
-.history-item-del {
-  position: absolute; top: 4px; right: 4px;
-  width: 22px; height: 22px;
-  background: rgba(0,0,0,.6);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  color: var(--fg2);
-}
-
-/* ── TOAST ────────────────────────────────────────────── */
-#toast {
-  position: absolute;
-  bottom: calc(80px + var(--safe-bottom));
-  left: 16px; right: 16px;
-  background: var(--card2);
-  border: 1px solid var(--line2);
-  border-radius: var(--r12);
-  padding: 12px 16px;
-  display: flex; align-items: center; gap: 10px;
-  font-size: .85rem;
-  font-weight: 500;
-  z-index: 200;
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all .3s var(--spring);
-  pointer-events: none;
-  box-shadow: var(--sh2);
-}
-#toast.show { transform: translateY(0); opacity: 1; }
-#toast.ok   { border-color: rgba(74,158,106,.3); background: rgba(74,158,106,.12); color: var(--green); }
-#toast.err  { border-color: rgba(224,85,85,.3);  background: rgba(224,85,85,.12);  color: var(--red); }
-#toast.wrn  { border-color: rgba(212,160,74,.3); background: rgba(212,160,74,.12); color: var(--gold); }
-
-/* ── FACE BOX SVG ─────────────────────────────────────── */
-.face-svg { position: absolute; inset: 0; pointer-events: none; }
-
-/* ── INSTALL BANNER ───────────────────────────────────── */
-#installBanner {
-  margin: 8px 16px 0;
-  background: var(--gold-gl);
-  border: 1px solid rgba(212,160,74,.2);
-  border-radius: var(--r12);
-  padding: 12px 14px;
-  display: none;
-  align-items: center;
-  gap: 10px;
-}
-#installBanner.vis { display: flex; }
-#installBanner p { flex: 1; font-size: .8rem; color: var(--gold); line-height: 1.4; }
-#installBanner button {
-  background: var(--gold2);
-  color: var(--fg);
-  border: none;
-  padding: 7px 14px;
-  border-radius: var(--rpill);
-  font-size: .78rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* ── UTILS ────────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.hidden { display: none !important; }
-#fileInput, #cameraInput { display: none; }
-
-</style>
+<title>Passport Photo — Appozi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.js"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root {
+  --ink:    #0a0e09;
+  --ink2:   #111611;
+  --card:   #161d14;
+  --card2:  #1c2519;
+  --line:   rgba(255,255,255,.07);
+  --line2:  rgba(255,255,255,.13);
+  --fg:     #f0ede8;
+  --fg2:    #9aa896;
+  --fg3:    #5a6657;
+  --green:  #4a9e6a;
+  --green2: #2d5a3d;
+  --ggl:    rgba(74,158,106,.15);
+  --gold:   #d4a04a;
+  --gold2:  #a07530;
+  --red:    #e05555;
+  --amber:  #e09040;
+  --sh1:    0 2px 12px rgba(0,0,0,.4);
+  --sh2:    0 8px 32px rgba(0,0,0,.5);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+/* ── RESET ──────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink);
+  color:var(--fg);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+  user-select:none;
+}
+button,input { font-family:inherit; }
+
+/* ── APP SHELL ──────────────────────────────────────── */
+#app {
+  display:flex; flex-direction:column;
+  height:100%; max-width:430px;
+  margin:0 auto; position:relative; overflow:hidden;
+}
+
+/* ── SPLASH ─────────────────────────────────────────── */
+#splash {
+  position:absolute; inset:0; z-index:999;
+  background:var(--ink);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  cursor:pointer; overflow:hidden;
+}
+#splash.out { animation:splashOut .65s ease forwards; }
+@keyframes splashOut { to { opacity:0; transform:scale(1.05); pointer-events:none; } }
+
+.sp-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(74,158,106,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(74,158,106,.05) 1px,transparent 1px);
+  background-size:52px 52px;
+  animation:gd 16s linear infinite;
+}
+@keyframes gd { to { transform:translate(52px,52px); } }
+.sp-glow {
+  position:absolute;
+  width:500px; height:500px; border-radius:50%;
+  background:radial-gradient(circle,rgba(74,158,106,.14) 0%,transparent 70%);
+  animation:glw 4s ease-in-out infinite;
+}
+@keyframes glw { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.1);opacity:1} }
+
+.sp-body { position:relative; z-index:2; text-align:center; padding:0 32px; }
+.sp-icon {
+  width:86px; height:86px;
+  background:linear-gradient(145deg,#1e3828,#0e1e12);
+  border-radius:24px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:40px; margin:0 auto 24px;
+  box-shadow:var(--sh2), 0 0 0 1px rgba(74,158,106,.2);
+  animation:iconPop .6s .1s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes iconPop { from{opacity:0;transform:scale(.3) rotate(-15deg)} to{opacity:1;transform:none} }
+.sp-by {
+  font-family:'DM Mono',monospace; font-size:.6rem;
+  letter-spacing:.28em; color:var(--gold); text-transform:uppercase;
+  opacity:0; animation:fu .4s .5s ease both; margin-bottom:8px;
+}
+.sp-title {
+  font-family:'Syne',sans-serif; font-size:2.6rem; font-weight:800;
+  line-height:1.05; letter-spacing:-.03em;
+  opacity:0; animation:fu .5s .62s ease both; margin-bottom:6px;
+}
+.sp-title span { color:var(--green); }
+.sp-sub {
+  font-family:'DM Mono',monospace; font-size:.66rem;
+  letter-spacing:.16em; color:var(--fg3); text-transform:uppercase;
+  opacity:0; animation:fu .4s .78s ease both; margin-bottom:44px;
+}
+.sp-bar {
+  width:150px; height:2px; background:rgba(255,255,255,.08);
+  border-radius:1px; overflow:hidden; margin:0 auto 8px;
+  opacity:0; animation:fu .4s .88s ease both;
+}
+.sp-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--green2),var(--gold));
+  animation:sfill 2.4s 1s ease forwards;
+}
+@keyframes sfill { 0%{width:0%} 40%{width:50%} 70%{width:78%} 90%{width:92%} 100%{width:100%} }
+.sp-pct {
+  font-family:'DM Mono',monospace; font-size:.6rem;
+  color:var(--gold); text-align:center;
+  opacity:0; animation:fu .4s .88s ease both;
+}
+.sp-hint {
+  position:absolute; bottom:calc(28px + var(--safe-b));
+  font-family:'DM Mono',monospace; font-size:.58rem;
+  color:var(--fg3); letter-spacing:.14em; text-transform:uppercase;
+  opacity:0; animation:fu .4s 1.2s ease both;
+}
+
+/* ── TOP BAR ────────────────────────────────────────── */
+.topbar {
+  padding:calc(10px + var(--safe-t)) 20px 10px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0; background:var(--ink);
+  border-bottom:1px solid var(--line);
+}
+.tbar-logo { display:flex; align-items:center; gap:10px; }
+.tbar-icon {
+  width:32px; height:32px; background:var(--green2);
+  border-radius:9px; display:flex; align-items:center;
+  justify-content:center; font-size:16px;
+}
+.tbar-name {
+  font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:-.02em;
+}
+.tbar-name span { color:var(--green); }
+.tbar-badge {
+  font-family:'DM Mono',monospace; font-size:.58rem;
+  background:var(--ggl); color:var(--green);
+  border:1px solid rgba(74,158,106,.2);
+  padding:4px 9px; border-radius:100px; letter-spacing:.08em;
+}
+
+/* ── TAB BAR ────────────────────────────────────────── */
+.tabbar {
+  display:flex; background:var(--card);
+  border-bottom:1px solid var(--line); flex-shrink:0;
+}
+.tab {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; padding:10px 0 8px;
+  cursor:pointer; position:relative; transition:opacity .15s;
+}
+.tab:active { opacity:.7; }
+.tab-icon { font-size:19px; margin-bottom:2px; transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.tab-label {
+  font-family:'DM Mono',monospace; font-size:.58rem;
+  color:var(--fg3); letter-spacing:.05em; transition:color .15s;
+}
+.tab.on .tab-icon { transform:scale(1.15); }
+.tab.on .tab-label { color:var(--green); }
+.tab.on::after {
+  content:''; position:absolute; bottom:0; left:50%;
+  transform:translateX(-50%);
+  width:22px; height:2px; background:var(--green); border-radius:1px;
+}
+
+/* ── SCROLL AREA ────────────────────────────────────── */
+#scrollArea {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+}
+#scrollArea::-webkit-scrollbar { display:none; }
+
+/* ── SCREENS ────────────────────────────────────────── */
+.screen { display:none; padding:16px 16px 0; animation:scIn .25s ease both; }
+.screen.on { display:block; }
+@keyframes scIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* ─── UPLOAD SCREEN ─────────────────────────────────── */
+.u-hero { padding:8px 0 20px; text-align:center; }
+.u-title {
+  font-family:'Syne',sans-serif; font-size:1.65rem; font-weight:800;
+  letter-spacing:-.03em; line-height:1.1; margin-bottom:7px;
+}
+.u-title span { color:var(--green); }
+.u-sub { font-size:.83rem; color:var(--fg2); line-height:1.5; }
+
+.drop-zone {
+  background:var(--card); border:2px dashed var(--line2);
+  border-radius:22px; padding:36px 20px;
+  text-align:center; cursor:pointer;
+  transition:all .2s ease; margin-bottom:12px;
+}
+.drop-zone:active,.drop-zone.drag {
+  border-color:var(--green); background:#182b1c;
+}
+.dz-icon {
+  width:60px; height:60px; background:linear-gradient(145deg,var(--green2),#1a2d20);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:26px; margin:0 auto 14px;
+  box-shadow:0 0 0 8px rgba(45,90,61,.15);
+}
+.dz-title { font-family:'Syne',sans-serif; font-size:.98rem; font-weight:700; margin-bottom:4px; }
+.dz-sub { font-size:.78rem; color:var(--fg3); margin-bottom:18px; }
+.dz-or {
+  font-family:'DM Mono',monospace; font-size:.65rem;
+  color:var(--fg3); letter-spacing:.1em; text-transform:uppercase;
+  margin:12px 0;
+}
+
+.btn-cam {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:14px;
+  background:var(--green2); color:var(--fg);
+  border:none; border-radius:14px;
+  font-family:'Syne',sans-serif; font-size:.92rem; font-weight:700;
+  cursor:pointer; transition:all .2s; box-shadow:var(--sh1);
+}
+.btn-cam:active { transform:scale(.97); }
+
+.btn-gal {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:13px; margin-top:9px;
+  background:var(--card); color:var(--fg2);
+  border:1.5px solid var(--line2); border-radius:14px;
+  font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500;
+  cursor:pointer; transition:all .2s;
+}
+.btn-gal:active { background:var(--card2); transform:scale(.98); }
+
+.chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:18px; padding-bottom:16px; }
+.chip {
+  display:flex; align-items:center; gap:4px;
+  background:var(--card); border:1px solid var(--line2);
+  border-radius:100px; padding:5px 11px;
+  font-size:.7rem; color:var(--fg2); font-weight:500;
+}
+.chip.on { background:var(--ggl); border-color:rgba(74,158,106,.25); color:var(--green); }
+
+/* ─── EDIT SCREEN ────────────────────────────────────── */
+.edit-img-wrap {
+  position:relative; background:var(--card);
+  border-radius:18px; overflow:hidden;
+  margin-bottom:14px;
+  display:flex; align-items:center; justify-content:center;
+  min-height:200px;
+}
+.edit-img-wrap img {
+  display:block; max-width:100%; max-height:42vh;
+  border-radius:10px; object-fit:contain;
+}
+.edit-badge {
+  position:absolute; top:10px; left:10px;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(8px);
+  font-family:'DM Mono',monospace; font-size:.6rem;
+  color:var(--fg); padding:5px 10px; border-radius:100px;
+  border:1px solid var(--line2); letter-spacing:.05em;
+}
+.edit-actions {
+  position:absolute; top:10px; right:10px;
+  display:flex; gap:6px;
+}
+.edit-act-btn {
+  width:34px; height:34px;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(8px);
+  border:1px solid var(--line2); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; cursor:pointer; transition:all .15s; color:var(--fg);
+}
+.edit-act-btn:active { transform:scale(.88); background:var(--green2); }
+
+/* ── BIG GENERATE BUTTON ─── always visible ─────────── */
+.gen-btn-wrap { margin-bottom:14px; }
+.btn-generate {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:17px;
+  background:linear-gradient(135deg,#2d5a3d,#3d7a55);
+  color:var(--fg); border:none; border-radius:16px;
+  font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800;
+  cursor:pointer; letter-spacing:-.01em;
+  box-shadow:0 4px 20px rgba(45,90,61,.4);
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  position:relative; overflow:hidden;
+}
+.btn-generate::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,.06));
+}
+.btn-generate:active { transform:scale(.97); box-shadow:var(--sh1); }
+.btn-generate:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.btn-generate .g-icon { font-size:20px; }
+
+/* PROCESSING OVERLAY */
+.proc-ov {
+  position:absolute; inset:0;
+  background:rgba(10,14,9,.9); backdrop-filter:blur(6px);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+  z-index:10; border-radius:18px;
+}
+.proc-spin {
+  width:44px; height:44px;
+  border:2.5px solid var(--line2); border-top-color:var(--green);
+  border-radius:50%; animation:spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.proc-step { font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700; color:var(--green); text-align:center; }
+.proc-bar { width:140px; height:2px; background:var(--line); border-radius:1px; overflow:hidden; }
+.proc-fill { height:100%; background:linear-gradient(90deg,var(--green2),var(--gold)); transition:width .4s ease; width:0%; }
+
+/* TOOL CARDS */
+.sec-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.sec-title {
+  font-family:'Syne',sans-serif; font-size:.72rem; font-weight:700;
+  color:var(--fg3); letter-spacing:.1em; text-transform:uppercase;
+}
+.sec-action { font-size:.73rem; color:var(--green); cursor:pointer; font-weight:500; }
+
+.tcard {
+  background:var(--card); border-radius:14px;
+  padding:14px; margin-bottom:10px; border:1px solid var(--line);
+}
+.tcard-hdr {
+  display:flex; align-items:center; gap:8px;
+  cursor:pointer; margin-bottom:0;
+}
+.tcard-hdr.open { margin-bottom:14px; }
+.tcard-ico {
+  width:26px; height:26px; background:var(--ggl);
+  border-radius:7px; display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+}
+.tcard-lbl { font-family:'Syne',sans-serif; font-size:.83rem; font-weight:700; flex:1; }
+.tcard-arr { color:var(--fg3); font-size:.75rem; transition:transform .2s; }
+.tcard-hdr.open .tcard-arr { transform:rotate(90deg); }
+.tcard-body { display:none; }
+.tcard-body.open { display:block; }
+
+.sr { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.sr:last-child { margin-bottom:0; }
+.sr-lbl { font-size:.73rem; color:var(--fg2); width:74px; flex-shrink:0; }
+input[type=range] {
+  flex:1; -webkit-appearance:none; height:3px;
+  background:var(--line2); border-radius:2px; outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:19px; height:19px;
+  border-radius:50%; background:var(--fg);
+  border:2.5px solid var(--green); cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.4); transition:transform .15s;
+}
+input[type=range]:active::-webkit-slider-thumb { transform:scale(1.3); }
+.sr-val { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--green); width:26px; text-align:right; flex-shrink:0; }
+
+/* BG SWATCHES */
+.swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.sw {
+  width:34px; height:34px; border-radius:8px; cursor:pointer;
+  border:2px solid transparent; transition:all .2s cubic-bezier(.34,1.56,.64,1);
+}
+.sw:active { transform:scale(.88); }
+.sw.on { border-color:var(--green); box-shadow:0 0 0 3px var(--ggl); transform:scale(1.1); }
+.sw-custom {
+  width:34px; height:34px; border-radius:8px;
+  border:2px dashed var(--line2); position:relative;
+  display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;
+}
+.sw-custom input[type=color] { position:absolute; inset:-4px; width:calc(100%+8px); height:calc(100%+8px); opacity:0; cursor:pointer; }
+
+/* SIZE + HEAD PILLS */
+.pills { display:flex; gap:7px; flex-wrap:wrap; }
+.pill {
+  padding:7px 13px; background:var(--card2);
+  border:1px solid var(--line2); border-radius:100px;
+  font-size:.73rem; font-weight:500; color:var(--fg2); cursor:pointer; transition:all .15s;
+}
+.pill:active { transform:scale(.94); }
+.pill.on { background:var(--ggl); border-color:rgba(74,158,106,.3); color:var(--green); }
+
+/* ─── RESULT SCREEN ──────────────────────────────────── */
+.res-preview {
+  background:var(--card); border-radius:18px;
+  display:flex; align-items:center; justify-content:center;
+  padding:16px; margin-bottom:12px; min-height:160px;
+}
+.res-preview canvas { max-width:100%; max-height:52vh; border-radius:8px; box-shadow:var(--sh2); }
+
+.res-meta { display:flex; gap:7px; margin-bottom:14px; flex-wrap:wrap; }
+.mpill {
+  display:flex; align-items:center; gap:5px;
+  background:var(--card); border:1px solid var(--line2);
+  border-radius:100px; padding:5px 11px;
+  font-size:.7rem; color:var(--fg2);
+}
+.mpill .d { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+/* DOWNLOAD BUTTONS */
+.dl-row { display:flex; gap:10px; margin-bottom:10px; }
+.btn-dl {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:15px 10px; border:none; border-radius:14px; cursor:pointer;
+  font-family:'Syne',sans-serif; font-size:.92rem; font-weight:700;
+  transition:all .2s; box-shadow:var(--sh1);
+}
+.btn-dl:active { transform:scale(.96); }
+.btn-dl.grn { background:linear-gradient(135deg,#2d5a3d,#3d7a55); color:var(--fg); }
+.btn-dl.gld { background:linear-gradient(135deg,#a07530,#c49040); color:var(--fg); }
+.btn-dl.ghost {
+  background:var(--card); color:var(--fg2);
+  border:1.5px solid var(--line2); flex:0 0 52px;
+}
+.btn-dl-full {
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  width:100%; padding:14px;
+  background:linear-gradient(135deg,#a07530,#c49040);
+  color:var(--fg); border:none; border-radius:14px;
+  font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+  cursor:pointer; box-shadow:var(--sh1); margin-bottom:10px;
+  transition:all .2s;
+}
+.btn-dl-full:active { transform:scale(.97); }
+
+/* SHEET MINI */
+.sheet-mini {
+  background:#fff; border-radius:12px; padding:10px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:5px;
+  margin-bottom:14px;
+}
+.sm-cell { aspect-ratio:35/45; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+.sm-cell img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* NEW PHOTO BUTTON */
+.btn-new {
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; padding:13px; margin-bottom:16px;
+  background:var(--card); color:var(--fg2);
+  border:1.5px solid var(--line2); border-radius:14px;
+  font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500;
+  cursor:pointer; transition:all .2s;
+}
+.btn-new:active { background:var(--card2); }
+
+/* ─── HISTORY SCREEN ─────────────────────────────────── */
+.hist-empty { text-align:center; padding:56px 24px; color:var(--fg3); }
+.hist-empty .ico { font-size:2.8rem; opacity:.28; margin-bottom:14px; }
+.hist-empty h3 { font-family:'Syne',sans-serif; font-size:.98rem; font-weight:700; margin-bottom:6px; color:var(--fg2); }
+.hist-empty p { font-size:.8rem; line-height:1.5; }
+.hist-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.hist-item { aspect-ratio:35/45; border-radius:12px; overflow:hidden; background:var(--card); cursor:pointer; position:relative; transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.hist-item:active { transform:scale(.92); }
+.hist-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.hist-del { position:absolute; top:5px; right:5px; width:22px; height:22px; background:rgba(0,0,0,.65); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; }
+
+/* ─── CROP SHEET ─────────────────────────────────────── */
+.cr-backdrop {
+  position:absolute; inset:0; background:rgba(0,0,0,.55);
+  z-index:90; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.cr-backdrop.on { opacity:1; pointer-events:auto; }
+.cr-sheet {
+  position:absolute; bottom:0; left:0; right:0;
+  background:var(--card); border-radius:22px 22px 0 0;
+  padding:14px 14px calc(16px + var(--safe-b));
+  z-index:100; transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  max-height:90vh; display:flex; flex-direction:column;
+}
+.cr-sheet.on { transform:translateY(0); }
+.cr-handle { width:34px; height:3px; background:var(--line2); border-radius:2px; margin:0 auto 14px; flex-shrink:0; }
+.cr-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800; margin-bottom:10px; flex-shrink:0; }
+.cr-hint { background:var(--ggl); border:1px solid rgba(74,158,106,.15); border-radius:10px; padding:10px 13px; font-size:.78rem; color:var(--green); margin-bottom:12px; flex-shrink:0; }
+.cr-canvas-wrap { flex:1; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:0; }
+#cropWrap { position:relative; display:inline-block; user-select:none; max-width:100%; }
+#cropWrap img { display:block; max-width:100%; max-height:50vh; border-radius:10px; }
+#cropBox { position:absolute; border:2px solid #fff; box-shadow:0 0 0 9999px rgba(0,0,0,.55); cursor:move; touch-action:none; }
+.ch { position:absolute; width:13px; height:13px; background:#fff; border-radius:3px; }
+.ch.tl{top:-6px;left:-6px;cursor:nw-resize}
+.ch.tr{top:-6px;right:-6px;cursor:ne-resize}
+.ch.bl{bottom:-6px;left:-6px;cursor:sw-resize}
+.ch.br{bottom:-6px;right:-6px;cursor:se-resize}
+.ch.tm{top:-6px;left:calc(50% - 6px);cursor:n-resize}
+.ch.bm{bottom:-6px;left:calc(50% - 6px);cursor:s-resize}
+.ch.ml{top:calc(50% - 6px);left:-6px;cursor:w-resize}
+.ch.mr{top:calc(50% - 6px);right:-6px;cursor:e-resize}
+.cr-grid { position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr 1fr; pointer-events:none; opacity:.25; }
+.cr-grid span { border:.5px solid rgba(255,255,255,.8); }
+.cr-info { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--fg3); text-align:center; margin:9px 0 12px; flex-shrink:0; }
+.cr-footer { display:flex; gap:8px; flex-shrink:0; }
+.btn-cr {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:13px; border-radius:13px; cursor:pointer;
+  font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700;
+  border:none; transition:all .15s;
+}
+.btn-cr:active { transform:scale(.96); }
+.btn-cr.cancel { background:var(--card2); color:var(--fg2); border:1px solid var(--line2); flex:0 0 auto; padding:13px 16px; }
+.btn-cr.reset  { background:var(--card2); color:var(--fg2); border:1px solid var(--line2); flex:0 0 auto; padding:13px 16px; }
+.btn-cr.apply  { background:linear-gradient(135deg,#2d5a3d,#3d7a55); color:var(--fg); box-shadow:var(--sh1); }
+
+/* ── FACE SVG ───────────────────────────────────────── */
+.fsvg { position:absolute; inset:0; pointer-events:none; }
+
+/* ── TOAST ──────────────────────────────────────────── */
+#toast {
+  position:absolute; bottom:calc(74px + var(--safe-b)); left:14px; right:14px;
+  background:var(--card2); border:1px solid var(--line2); border-radius:12px;
+  padding:12px 15px; display:flex; align-items:center; gap:9px;
+  font-size:.83rem; font-weight:500; z-index:500;
+  transform:translateY(16px); opacity:0;
+  transition:all .28s cubic-bezier(.34,1.56,.64,1); pointer-events:none;
+  box-shadow:var(--sh2);
+}
+#toast.show { transform:translateY(0); opacity:1; }
+#toast.ok  { border-color:rgba(74,158,106,.3); background:rgba(74,158,106,.1); color:var(--green); }
+#toast.err { border-color:rgba(224,85,85,.3);  background:rgba(224,85,85,.1);  color:var(--red); }
+#toast.wrn { border-color:rgba(212,160,74,.3); background:rgba(212,160,74,.1); color:var(--gold); }
+
+
+/* ── STICKY GENERATE BAR ─────────────────────────────── */
+#genBar {
+  flex-shrink:0;
+  padding:10px 16px calc(10px + var(--safe-b));
+  background:var(--ink);
+  border-top:1px solid var(--line);
+  display:none;
+}
+#genBar.on { display:block; }
+
+/* ── UTILS ──────────────────────────────────────────── */
+@keyframes fu { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.spacer { height:16px; }
+#fileInput,#camInput { display:none; }
+#passCanvas { display:none; }
+</style>
 </head>
 <body>
 
+<!-- hidden inputs & processing canvas -->
 <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
-<input type="file" id="cameraInput" accept="image/*" capture="user">
-<canvas id="passCanvas" style="display:none"></canvas>
+<input type="file" id="camInput"  accept="image/*" capture="user">
+<canvas id="passCanvas"></canvas>
 
 <div id="app">
 
-  <!-- ══ SPLASH ══════════════════════════════════════ -->
-  <div id="splash">
-    <div class="splash-bg">
-      <div class="splash-grid"></div>
-      <div class="splash-ring"></div>
-      <div class="splash-ring"></div>
-      <div class="splash-ring"></div>
-    </div>
-    <div class="splash-content">
-      <div class="splash-icon">🪪</div>
-      <div class="splash-by">Appozi presents</div>
-      <div class="splash-title">Passport<br><span>Photo</span></div>
-      <div class="splash-sub">AI · Portrait · Studio</div>
-      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
-      <div class="splash-pct" id="splashPct">0%</div>
-    </div>
-    <div class="splash-footer">
-      <div class="splash-footer-brand">by <span>Appozi</span></div>
-      <div style="font-family:'DM Mono',monospace;font-size:.56rem;color:rgba(90,102,87,.7);letter-spacing:.14em;text-transform:uppercase;margin-top:8px">Tap anywhere to continue</div>
-    </div>
+<!-- ══ SPLASH ══════════════════════════════════════════ -->
+<div id="splash" onclick="dismissSplash()">
+  <div class="sp-grid"></div>
+  <div class="sp-glow"></div>
+  <div class="sp-body">
+    <div class="sp-icon">🪪</div>
+    <div class="sp-by">Appozi presents</div>
+    <div class="sp-title">Passport<br><span>Photo</span></div>
+    <div class="sp-sub">AI · Portrait · Studio</div>
+    <div class="sp-bar"><div class="sp-fill"></div></div>
+    <div class="sp-pct" id="spPct">0%</div>
   </div>
+  <div class="sp-hint">Tap anywhere to start</div>
+</div>
 
-  <!-- ══ STATUS BAR ══════════════════════════════════ -->
-  <div class="status-bar">
-    <span class="status-time" id="statusTime">09:41</span>
-    <div class="status-icons">
-      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4" y="2.5" width="3" height="9.5" rx="1"/><rect x="8" y="1" width="3" height="11" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1"/></svg>
-      <svg width="15" height="12" viewBox="0 0 15 12" fill="currentColor"><path d="M7.5 2.5C9.8 2.5 11.9 3.4 13.4 4.9L14.8 3.5C12.9 1.6 10.3.5 7.5.5S2.1 1.6.2 3.5L1.6 4.9C3.1 3.4 5.2 2.5 7.5 2.5z" opacity=".4"/><path d="M7.5 5.5C9 5.5 10.4 6.1 11.4 7.1L12.8 5.7C11.4 4.4 9.5 3.5 7.5 3.5S3.6 4.4 2.2 5.7L3.6 7.1C4.6 6.1 6 5.5 7.5 5.5z" opacity=".7"/><circle cx="7.5" cy="10.5" r="1.5"/></svg>
-      <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="16" height="7" rx="1.5" opacity=".9"/><path d="M23 4v4a2 2 0 000-4z"/></svg>
+<!-- ══ TOP BAR ══════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="tbar-logo">
+    <div class="tbar-icon">🪪</div>
+    <span class="tbar-name">Pass<span>Photo</span></span>
+  </div>
+  <span class="tbar-badge">✦ AI by Appozi</span>
+</div>
+
+<!-- ══ TABS ═════════════════════════════════════════════ -->
+<div class="tabbar">
+  <div class="tab on" data-sc="upload" onclick="gotoTab('upload')">
+    <div class="tab-icon">📸</div>
+    <div class="tab-label">New</div>
+  </div>
+  <div class="tab" data-sc="edit" onclick="gotoTab('edit')">
+    <div class="tab-icon">🛠</div>
+    <div class="tab-label">Edit</div>
+  </div>
+  <div class="tab" data-sc="result" onclick="gotoTab('result')">
+    <div class="tab-icon">🪪</div>
+    <div class="tab-label">Result</div>
+  </div>
+  <div class="tab" data-sc="history" onclick="gotoTab('history')">
+    <div class="tab-icon">🗂</div>
+    <div class="tab-label">History</div>
+  </div>
+</div>
+
+<!-- ══ SCROLL AREA ═══════════════════════════════════════ -->
+<div id="scrollArea">
+
+  <!-- ─── NEW PHOTO TAB ─────────────────────────────── -->
+  <div class="screen on" id="sc-upload">
+    <div class="u-hero">
+      <div class="u-title">Instant <span>Passport</span><br>Photos</div>
+      <div class="u-sub">AI face detection · background removal · auto crop · manual crop</div>
     </div>
-  </div>
 
-  <!-- ══ TOP BAR ══════════════════════════════════════ -->
-  <div class="topbar">
-    <div class="topbar-logo">
-      <div class="topbar-icon">🪪</div>
-      <span class="topbar-name">Pass<span>Photo</span></span>
-    </div>
-    <span class="topbar-badge">✦ AI</span>
-  </div>
-
-  <!-- ══ INSTALL BANNER ══════════════════════════════ -->
-  <div id="installBanner">
-    <p>📲 Add to your home screen for the best experience</p>
-    <button onclick="installApp()">Install</button>
-  </div>
-
-  <!-- ══ SCROLL AREA ══════════════════════════════════ -->
-  <div id="scrollArea">
-
-    <!-- ─── UPLOAD SCREEN ─────────────────────────── -->
-    <div class="screen active" id="screen-upload">
-      <div class="upload-hero">
-        <div class="upload-hero-title">Professional<br><span>passport photos</span><br>in seconds</div>
-        <div class="upload-hero-sub">AI face detection · background removal · auto crop</div>
-      </div>
-
-      <div class="upload-zone" id="uploadZone" onclick="openGallery()">
-        <div class="upload-zone-icon">📸</div>
-        <h3>Drop or tap to upload</h3>
-        <p>JPG · PNG · WebP · max 10 MB</p>
-        <div class="upload-zone-or">— or —</div>
-        <button class="btn-camera" onclick="event.stopPropagation(); openCamera()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Take Photo with Camera
-        </button>
-      </div>
-
-      <button class="btn-gallery" onclick="openGallery()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Choose from Gallery
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="dz-icon">📸</div>
+      <div class="dz-title">Drop photo here</div>
+      <div class="dz-sub">JPG · PNG · WebP · max 10 MB</div>
+      <div class="dz-or">— or —</div>
+      <button class="btn-cam" onclick="event.stopPropagation(); document.getElementById('camInput').click()">
+        📷 &nbsp;Take Photo with Camera
       </button>
-
-      <div class="chips">
-        <div class="chip active">🤖 AI Face Detection</div>
-        <div class="chip active">🎨 BG Removal</div>
-        <div class="chip active">✂️ Auto Crop</div>
-        <div class="chip active">🖱 Manual Crop</div>
-        <div class="chip active">📐 413×531px</div>
-        <div class="chip active">🖨️ Print Sheet</div>
-      </div>
     </div>
 
-    <!-- ─── EDIT SCREEN ────────────────────────────── -->
-    <div class="screen" id="screen-edit">
+    <button class="btn-gal" onclick="document.getElementById('fileInput').click()">
+      🖼 &nbsp;Choose from Gallery
+    </button>
 
-      <!-- Preview -->
-      <div class="edit-preview">
-        <div id="editPreviewContainer" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">
-          <div style="color:#5a6657;font-size:.82rem;">No photo loaded</div>
-        </div>
-        <div class="edit-preview-badge">Original Photo</div>
-        <div class="edit-preview-actions">
-          <div class="preview-action-btn" onclick="openCropModal()" title="Manual Crop">✂️</div>
-          <div class="preview-action-btn" onclick="openGallery()" title="New Photo">📁</div>
-        </div>
-        <!-- Processing overlay -->
-        <div class="proc-overlay" id="procOverlay" style="display:none">
-          <div class="proc-spinner"></div>
-          <div class="proc-step" id="procStep">Processing…</div>
-          <div class="proc-bar"><div class="proc-fill" id="procFill"></div></div>
-        </div>
-      </div>
-
-      <!-- Enhancement Tools -->
-      <div class="section-hdr">
-        <div class="section-title">Enhancement Tools</div>
-        <div class="section-action" onclick="resetSliders()">Reset all</div>
-      </div>
-
-      <!-- Photo Adjustments -->
-      <div class="tool-card">
-        <div class="tool-card-hdr">
-          <div class="tool-card-icon">✨</div>
-          <div class="tool-card-label">Photo Adjustments</div>
-          <div class="tool-card-chevron">›</div>
-        </div>
-        <div class="tool-card-body">
-          <div class="slider-row"><span class="slider-label">Brightness</span><input type="range" id="sBr" min="50" max="170" value="100"><span class="slider-val" id="vBr">100</span></div>
-          <div class="slider-row"><span class="slider-label">Contrast</span><input type="range" id="sCo" min="50" max="170" value="108"><span class="slider-val" id="vCo">108</span></div>
-          <div class="slider-row"><span class="slider-label">Sharpness</span><input type="range" id="sSh" min="0" max="200" value="40"><span class="slider-val" id="vSh">40</span></div>
-          <div class="slider-row"><span class="slider-label">Saturation</span><input type="range" id="sSa" min="60" max="160" value="108"><span class="slider-val" id="vSa">108</span></div>
-          <div class="slider-row"><span class="slider-label">Warmth</span><input type="range" id="sWm" min="-30" max="30" value="4"><span class="slider-val" id="vWm">4</span></div>
-        </div>
-      </div>
-
-      <!-- BG Removal -->
-      <div class="tool-card">
-        <div class="tool-card-hdr">
-          <div class="tool-card-icon">🎨</div>
-          <div class="tool-card-label">Background Removal</div>
-          <div class="tool-card-chevron">›</div>
-        </div>
-        <div class="tool-card-body">
-          <div class="slider-row"><span class="slider-label">Radius</span><input type="range" id="sBgR" min="30" max="100" value="68"><span class="slider-val" id="vBgR">68</span></div>
-          <div class="slider-row"><span class="slider-label">Feather</span><input type="range" id="sBgF" min="5" max="60" value="28"><span class="slider-val" id="vBgF">28</span></div>
-          <div class="section-hdr" style="margin-top:4px"><div class="section-title">Background Color</div></div>
-          <div class="bg-swatches">
-            <div class="swatch sel" data-c="#ffffff" style="background:#fff;border-color:#ccc"></div>
-            <div class="swatch" data-c="#f0f2f5" style="background:#f0f2f5"></div>
-            <div class="swatch" data-c="#d6e4f0" style="background:#d6e4f0"></div>
-            <div class="swatch" data-c="#e8f0e8" style="background:#e8f0e8"></div>
-            <div class="swatch" data-c="#f5efe0" style="background:#f5efe0"></div>
-            <div class="swatch" data-c="#ffe8e8" style="background:#ffe8e8"></div>
-            <div class="swatch-custom">🎨<input type="color" id="custC" value="#ffffff"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Size & Position -->
-      <div class="tool-card">
-        <div class="tool-card-hdr">
-          <div class="tool-card-icon">📐</div>
-          <div class="tool-card-label">Size &amp; Position</div>
-          <div class="tool-card-chevron">›</div>
-        </div>
-        <div class="tool-card-body">
-          <div class="section-title" style="margin-bottom:8px">Passport Standard</div>
-          <div class="size-pills">
-            <div class="size-pill sel" onclick="setSz(413,531,this)">🇺🇸 US 35×45</div>
-            <div class="size-pill" onclick="setSz(354,472,this)">🇬🇧 UK 35×45</div>
-            <div class="size-pill" onclick="setSz(400,514,this)">🇨🇳 CN 33×48</div>
-          </div>
-          <div class="section-title" style="margin:14px 0 8px">Head Alignment</div>
-          <div class="size-pills">
-            <div class="size-pill" onclick="setHeadPos(.38)">⬆ High</div>
-            <div class="size-pill sel" onclick="setHeadPos(.44)">⬛ Standard</div>
-            <div class="size-pill" onclick="setHeadPos(.52)">⬇ Low</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="height:8px"></div>
+    <div class="chips">
+      <div class="chip on">🤖 AI Face Detect</div>
+      <div class="chip on">🎨 BG Removal</div>
+      <div class="chip on">✂️ Auto Crop</div>
+      <div class="chip on">🖱 Manual Crop</div>
+      <div class="chip on">📐 413×531px</div>
+      <div class="chip on">🖨️ Print Sheet</div>
     </div>
-
-    <!-- ─── RESULT SCREEN ──────────────────────────── -->
-    <div class="screen" id="screen-result">
-      <div class="result-preview">
-        <canvas id="resultCanvas"></canvas>
-      </div>
-
-      <div class="result-meta">
-        <div class="meta-pill"><span class="dot"></span>Face centred</div>
-        <div class="meta-pill"><span class="dot"></span>BG removed</div>
-        <div class="meta-pill"><span class="dot"></span>413×531 px</div>
-      </div>
-
-      <div class="section-hdr">
-        <div class="section-title">4× Print Sheet Preview</div>
-      </div>
-      <div class="sheet-mini" id="sheetMini"></div>
-
-      <div style="height:8px"></div>
-    </div>
-
-    <!-- ─── HISTORY SCREEN ─────────────────────────── -->
-    <div class="screen" id="screen-history">
-      <div class="section-hdr" style="margin-top:4px">
-        <div class="section-title">Recent Photos</div>
-      </div>
-      <div id="historyEmpty" class="history-empty">
-        <div class="ico">🪪</div>
-        <h3>No photos yet</h3>
-        <p>Your generated passport photos will appear here after you create them.</p>
-      </div>
-      <div class="history-grid" id="historyGrid" style="display:none"></div>
-      <div style="height:8px"></div>
-    </div>
-
-  </div><!-- /scrollArea -->
-
-  <!-- ══ BOTTOM ACTION BAR ════════════════════════════ -->
-  <!-- Upload screen bar -->
-  <div class="bottom-bar" id="bar-upload" style="display:none">
+    <div class="spacer"></div>
   </div>
 
-  <!-- Edit screen bar -->
-  <div class="bottom-bar" id="bar-edit" style="display:none">
-    <button class="btn-icon-bar" onclick="openCropModal()" title="Manual Crop">✂️</button>
-    <button class="btn-main" id="genBtn" onclick="generatePassport()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Generate Passport Photo
+  <!-- ─── EDIT TAB ──────────────────────────────────── -->
+  <div class="screen" id="sc-edit">
+
+    <!-- Original image preview -->
+    <div class="edit-img-wrap" id="editImgWrap">
+      <div style="color:var(--fg3);font-size:.82rem;padding:32px;">Upload a photo first</div>
+      <!-- processing overlay lives here when active -->
+      <div class="proc-ov" id="procOv" style="display:none">
+        <div class="proc-spin"></div>
+        <div class="proc-step" id="procStep">Processing…</div>
+        <div class="proc-bar"><div class="proc-fill" id="procFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="sec-hdr">
+      <div class="sec-title">Adjustments</div>
+      <div class="sec-action" onclick="resetSliders()">Reset</div>
+    </div>
+
+    <div class="tcard" id="tc-enhance">
+      <div class="tcard-hdr open" onclick="toggleCard('tc-enhance')">
+        <div class="tcard-ico">✨</div>
+        <div class="tcard-lbl">Photo Enhancements</div>
+        <div class="tcard-arr">›</div>
+      </div>
+      <div class="tcard-body open">
+        <div class="sr"><span class="sr-lbl">Brightness</span><input type="range" id="sBr" min="50" max="170" value="100"><span class="sr-val" id="vBr">100</span></div>
+        <div class="sr"><span class="sr-lbl">Contrast</span>  <input type="range" id="sCo" min="50" max="170" value="108"><span class="sr-val" id="vCo">108</span></div>
+        <div class="sr"><span class="sr-lbl">Sharpness</span> <input type="range" id="sSh" min="0"  max="200" value="40"> <span class="sr-val" id="vSh">40</span></div>
+        <div class="sr"><span class="sr-lbl">Saturation</span><input type="range" id="sSa" min="60" max="160" value="108"><span class="sr-val" id="vSa">108</span></div>
+        <div class="sr"><span class="sr-lbl">Warmth</span>    <input type="range" id="sWm" min="-30" max="30" value="4">  <span class="sr-val" id="vWm">4</span></div>
+      </div>
+    </div>
+
+    <div class="tcard" id="tc-bg">
+      <div class="tcard-hdr" onclick="toggleCard('tc-bg')">
+        <div class="tcard-ico">🎨</div>
+        <div class="tcard-lbl">Background</div>
+        <div class="tcard-arr">›</div>
+      </div>
+      <div class="tcard-body">
+        <div class="sr"><span class="sr-lbl">Radius</span> <input type="range" id="sBgR" min="30" max="100" value="68"><span class="sr-val" id="vBgR">68</span></div>
+        <div class="sr"><span class="sr-lbl">Feather</span><input type="range" id="sBgF" min="5"  max="60"  value="28"><span class="sr-val" id="vBgF">28</span></div>
+        <div style="margin-top:4px;margin-bottom:8px;font-size:.72rem;color:var(--fg3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Color</div>
+        <div class="swatches">
+          <div class="sw on" data-c="#ffffff" style="background:#fff;border-color:#ccc"></div>
+          <div class="sw" data-c="#f0f2f5" style="background:#f0f2f5"></div>
+          <div class="sw" data-c="#d6e4f0" style="background:#d6e4f0"></div>
+          <div class="sw" data-c="#e8f0e8" style="background:#e8f0e8"></div>
+          <div class="sw" data-c="#f5efe0" style="background:#f5efe0"></div>
+          <div class="sw" data-c="#ffe8e8" style="background:#ffe8e8"></div>
+          <div class="sw-custom">🎨<input type="color" id="custC" value="#ffffff"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tcard" id="tc-size">
+      <div class="tcard-hdr" onclick="toggleCard('tc-size')">
+        <div class="tcard-ico">📐</div>
+        <div class="tcard-lbl">Size &amp; Position</div>
+        <div class="tcard-arr">›</div>
+      </div>
+      <div class="tcard-body">
+        <div style="margin-bottom:8px;font-size:.72rem;color:var(--fg3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Standard</div>
+        <div class="pills">
+          <div class="pill on" onclick="setSz(413,531,this)">🇺🇸 US 35×45</div>
+          <div class="pill" onclick="setSz(354,472,this)">🇬🇧 UK 35×45</div>
+          <div class="pill" onclick="setSz(400,514,this)">🇨🇳 CN 33×48</div>
+        </div>
+        <div style="margin:12px 0 8px;font-size:.72rem;color:var(--fg3);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Head position</div>
+        <div class="pills">
+          <div class="pill" onclick="setHead(.38,this)">⬆ High</div>
+          <div class="pill on" onclick="setHead(.44,this)">⬛ Standard</div>
+          <div class="pill" onclick="setHead(.52,this)">⬇ Low</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:9px;margin-bottom:16px;margin-top:4px;">
+      <button onclick="openCrop()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:var(--card);color:var(--fg2);border:1.5px solid var(--line2);border-radius:13px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">
+        ✂️ Manual Crop
+      </button>
+      <button onclick="applyAdjust()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:var(--card);color:var(--fg2);border:1.5px solid var(--line2);border-radius:13px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;" id="adjBtn">
+        ✨ Apply Tweaks
+      </button>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- ─── RESULT TAB ────────────────────────────────── -->
+  <div class="screen" id="sc-result">
+    <div class="res-preview" id="resPreview">
+      <canvas id="resultCanvas"></canvas>
+    </div>
+
+    <div class="res-meta" id="resMeta" style="display:none">
+      <div class="mpill"><span class="d"></span>Face centred</div>
+      <div class="mpill"><span class="d"></span>BG removed</div>
+      <div class="mpill"><span class="d"></span>413×531 px</div>
+    </div>
+
+    <!-- DOWNLOAD ACTIONS -->
+    <div class="dl-row">
+      <button class="btn-dl grn" onclick="dlSingle()">
+        ⬇&nbsp; Save Photo
+      </button>
+      <button class="btn-dl ghost" onclick="sharePhoto()" title="Share">↗</button>
+    </div>
+    <button class="btn-dl-full" onclick="dlSheet()">
+      🖨️ &nbsp;Download 4× Print Sheet
+    </button>
+
+    <div class="sec-hdr">
+      <div class="sec-title">4× Sheet Preview</div>
+    </div>
+    <div class="sheet-mini" id="sheetMini"></div>
+
+    <button class="btn-new" onclick="gotoTab('upload')">
+      📸 &nbsp;Create Another Photo
     </button>
   </div>
 
-  <!-- Result screen bar -->
-  <div class="bottom-bar" id="bar-result" style="display:none">
-    <button class="btn-icon-bar" onclick="sharePhoto()" title="Share">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    </button>
-    <button class="btn-main" onclick="downloadSingle()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Save Photo
-    </button>
-    <button class="btn-main gold" onclick="downloadSheet()">🖨️ Sheet</button>
+  <!-- ─── HISTORY TAB ───────────────────────────────── -->
+  <div class="screen" id="sc-history">
+    <div class="sec-hdr" style="margin-top:4px">
+      <div class="sec-title">Recent Photos</div>
+    </div>
+    <div id="histEmpty" class="hist-empty">
+      <div class="ico">🪪</div>
+      <h3>No photos yet</h3>
+      <p>Generated passport photos will appear here.</p>
+    </div>
+    <div class="hist-grid" id="histGrid" style="display:none"></div>
+    <div class="spacer"></div>
   </div>
 
-  <!-- History screen bar -->
-  <div class="bottom-bar" id="bar-history" style="display:none">
-  </div>
+</div><!-- /scrollArea -->
 
-  <!-- ══ BOTTOM NAV ════════════════════════════════════ -->
-  <div class="bottom-nav">
-    <div class="nav-item active" data-screen="upload" onclick="goScreen('upload')">
-      <div class="nav-icon">📸</div>
-      <div class="nav-label">New</div>
-    </div>
-    <div class="nav-item" data-screen="edit" onclick="goScreen('edit')">
-      <div class="nav-icon">🛠</div>
-      <div class="nav-label">Edit</div>
-    </div>
-    <div class="nav-item" data-screen="result" onclick="goScreen('result')">
-      <div class="nav-icon">🪪</div>
-      <div class="nav-label">Result</div>
-    </div>
-    <div class="nav-item" data-screen="history" onclick="goScreen('history')">
-      <div class="nav-icon">🗂</div>
-      <div class="nav-label">History</div>
-    </div>
-  </div>
-
-  <!-- ══ CROP SHEET MODAL ══════════════════════════════ -->
-  <div class="modal-sheet-backdrop" id="cropBackdrop"></div>
-  <div class="modal-sheet" id="cropSheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">✂️ Manual Crop</div>
-    <div class="crop-container">
-      <div id="cropWrap">
-        <img id="cropImg" src="" alt="">
-        <div id="cropBox">
-          <div class="crop-grid">
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-          </div>
-          <div class="chandle tl" data-h="tl"></div>
-          <div class="chandle tr" data-h="tr"></div>
-          <div class="chandle bl" data-h="bl"></div>
-          <div class="chandle br" data-h="br"></div>
-          <div class="chandle tm" data-h="tm"></div>
-          <div class="chandle bm" data-h="bm"></div>
-          <div class="chandle ml" data-h="ml"></div>
-          <div class="chandle mr" data-h="mr"></div>
-        </div>
+<!-- ══ CROP SHEET ══════════════════════════════════════ -->
+<div class="cr-backdrop" id="crBd" onclick="closeCrop()"></div>
+<div class="cr-sheet" id="crSheet">
+  <div class="cr-handle"></div>
+  <div class="cr-title">✂️ Manual Crop</div>
+  <div class="cr-hint">Drag the box or handles to frame the face. Tap Apply to generate.</div>
+  <div class="cr-canvas-wrap">
+    <div id="cropWrap">
+      <img id="cropImg" src="" alt="">
+      <div id="cropBox">
+        <div class="cr-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="ch tl" data-h="tl"></div><div class="ch tr" data-h="tr"></div>
+        <div class="ch bl" data-h="bl"></div><div class="ch br" data-h="br"></div>
+        <div class="ch tm" data-h="tm"></div><div class="ch bm" data-h="bm"></div>
+        <div class="ch ml" data-h="ml"></div><div class="ch mr" data-h="mr"></div>
       </div>
     </div>
-    <div class="crop-info-bar">
-      <div class="crop-info-text" id="cropInfoText">Select area</div>
-    </div>
-    <div class="sheet-footer">
-      <button class="btn-main" style="background:var(--card);border:1px solid var(--line2);color:var(--fg2);flex:0 0 auto;padding:13px 18px;" onclick="closeCropModal()">Cancel</button>
-      <button class="btn-main" style="background:var(--card2);border:1px solid var(--line2);color:var(--fg2);flex:0 0 auto;padding:13px 18px;" onclick="resetCropBox()">⟳ Reset</button>
-      <button class="btn-main" onclick="applyCrop()">✅ Apply &amp; Generate</button>
-    </div>
   </div>
+  <div class="cr-info" id="crInfo">Select area</div>
+  <div class="cr-footer">
+    <button class="btn-cr cancel" onclick="closeCrop()">Cancel</button>
+    <button class="btn-cr reset"  onclick="resetCrop()">⟳</button>
+    <button class="btn-cr apply"  onclick="applyCrop()">✅ Apply &amp; Generate</button>
+  </div>
+</div>
 
-  <!-- ══ TOAST ══════════════════════════════════════════ -->
-  <div id="toast"></div>
+<!-- STICKY GENERATE BAR -->
+<div id="genBar">
+  <button class="btn-generate" id="genBtn" onclick="generatePassport()">
+    <span class="g-icon">⚡</span>
+    Generate Passport Photo
+  </button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 </div><!-- /app -->
 
 <script>
-// Sync action bars with screen
-const _goScreen = window.goScreen;
-window.goScreen = function(name) {
-  _goScreen(name);
-  ['upload','edit','result','history'].forEach(s => {
-    const bar = document.getElementById('bar-'+s);
-    if (bar) bar.style.display = (s === name) ? 'flex' : 'none';
-  });
-};
-// Init bars on load
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('bar-upload').style.display = 'none';
-  document.getElementById('bar-edit').style.display = 'none';
-  document.getElementById('bar-result').style.display = 'none';
-  document.getElementById('bar-history').style.display = 'none';
-});
-</script>
-<script>
-/* ═══════════════════════════════════════════════════════
-   PASSPORT PHOTO MAKER — app.js
-   Appozi © 2025
-═══════════════════════════════════════════════════════ */
-
-/* ── STATE ────────────────────────────────────────────── */
-const APP = {
-  origImg:    null,   // raw Image object
-  workImg:    null,   // after manual crop
-  passURL:    null,   // final result data URL
-  bgColor:    '#ffffff',
-  outW:       413,
-  outH:       531,
-  bfModel:    null,
-  modelLoading: false,
-  headVPos:   0.44,
-  currentScreen: 'upload',
-  history:    [],
-  cropState: { drag: false, handle: '', sx: 0, sy: 0, ob: { x:0,y:0,w:0,h:0 } },
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+var S = {
+  origImg: null, workImg: null, passURL: null,
+  bgColor: '#ffffff', outW: 413, outH: 531,
+  headV: 0.44, bfModel: null, modelLoading: false,
+  history: [], cropDrag: false, cropHandle: '', cropSx: 0, cropSy: 0,
+  cropOb: {x:0,y:0,w:0,h:0}
 };
 
-/* ── SERVICE WORKER ───────────────────────────────────── */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    
-  });
+/* ══════════════════════════════════════════════════════
+   SPLASH
+══════════════════════════════════════════════════════ */
+function dismissSplash() {
+  var el = document.getElementById('splash');
+  if (!el || el.classList.contains('out')) return;
+  el.classList.add('out');
+  setTimeout(function(){ el.style.display = 'none'; }, 680);
 }
 
-/* ── SPLASH ───────────────────────────────────────────── */
-// Define FIRST — before any IIFE or setTimeout references it
-window.dismissSplash = function () {
-  const s = document.getElementById('splash');
-  if (!s || s.classList.contains('exit')) return;
-  s.classList.add('exit');
-  document.body.style.overflow = '';
-  setTimeout(function () { s.style.display = 'none'; }, 750);
-};
-
-function updateClock() {
-  const el = document.getElementById('statusTime');
-  if (!el) return;
-  const now = new Date();
-  const h = now.getHours().toString().padStart(2, '0');
-  const m = now.getMinutes().toString().padStart(2, '0');
-  el.textContent = h + ':' + m;
-}
-
-(function initSplash() {
-  const pctEl = document.getElementById('splashPct');
-  let cur = 0;
-  const steps = [
-    { t: 30, d: 1100, ms: 500 },
-    { t: 62, d: 1800, ms: 480 },
-    { t: 84, d: 2400, ms: 400 },
-    { t: 100, d: 2900, ms: 300 },
-  ];
-  steps.forEach(function(s) {
-    setTimeout(function() {
-      var st = cur, t0 = performance.now();
-      (function tick(now) {
-        var p = Math.min((now - t0) / s.ms, 1);
-        var e = 1 - Math.pow(1 - p, 3);
-        cur = Math.round(st + (s.t - st) * e);
-        if (pctEl) pctEl.textContent = cur + '%';
-        if (p < 1) requestAnimationFrame(tick);
+(function() {
+  var pEl = document.getElementById('spPct'), cur = 0;
+  [{t:30,d:1100,ms:500},{t:62,d:1800,ms:460},{t:85,d:2400,ms:400},{t:100,d:2900,ms:300}].forEach(function(s){
+    setTimeout(function(){
+      var st=cur, t0=performance.now();
+      (function tick(now){
+        var p=Math.min((now-t0)/s.ms,1), e=1-Math.pow(1-p,3);
+        cur=Math.round(st+(s.t-st)*e);
+        if(pEl) pEl.textContent=cur+'%';
+        if(p<1) requestAnimationFrame(tick);
       })(performance.now());
-    }, s.d);
+    },s.d);
   });
-  // Auto-dismiss after load completes
-  setTimeout(window.dismissSplash, 3700);
-  // Tap anywhere on splash to skip
-  var sp = document.getElementById('splash');
-  if (sp) sp.addEventListener('click', window.dismissSplash);
-  // Clock
-  updateClock();
-  setInterval(updateClock, 30000);
+  setTimeout(dismissSplash, 3700);
 })();
 
-/* ── MODEL ────────────────────────────────────────────── */
-async function loadModel() {
-  if (APP.bfModel) return APP.bfModel;
-  if (APP.modelLoading) {
-    // wait
-    return new Promise(res => {
-      const iv = setInterval(() => {
-        if (APP.bfModel) { clearInterval(iv); res(APP.bfModel); }
-      }, 200);
-    });
-  }
-  APP.modelLoading = true;
-  try {
-    APP.bfModel = await blazeface.load();
-  } catch (e) { console.warn('BlazeFace:', e); }
-  APP.modelLoading = false;
-  return APP.bfModel;
-}
-loadModel(); // preload
-
-/* ── NAVIGATION ───────────────────────────────────────── */
-window.goScreen = function (name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const sc = document.getElementById('screen-' + name);
-  const ni = document.querySelector('.nav-item[data-screen="' + name + '"]');
-  if (sc) sc.classList.add('active');
-  if (ni) ni.classList.add('active');
-  APP.currentScreen = name;
-  if (name === 'result' && !APP.passURL) { toast('wrn', 'Generate a photo first'); goScreen('upload'); }
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+function gotoTab(name) {
+  if (name === 'result' && !S.passURL) { showToast('wrn','Generate a photo first'); return; }
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  var sc = document.getElementById('sc-' + name);
+  var tb = document.querySelector('.tab[data-sc="' + name + '"]');
+  if (sc) { sc.classList.add('on'); document.getElementById('scrollArea').scrollTop = 0; }
+  if (tb) tb.classList.add('on');
+  // Show sticky generate bar only on Edit tab
+  var genBar = document.getElementById('genBar');
+  if (genBar) genBar.classList[name === 'edit' ? 'add' : 'remove']('on');
   if (name === 'history') renderHistory();
-};
+  if (name === 'result') renderResult();
+}
 
-/* ── FILE INPUT ───────────────────────────────────────── */
-document.getElementById('fileInput').addEventListener('change', e => handleFile(e.target.files[0]));
-document.getElementById('cameraInput').addEventListener('change', e => handleFile(e.target.files[0]));
+/* ══════════════════════════════════════════════════════
+   FILE INPUT
+══════════════════════════════════════════════════════ */
+document.getElementById('fileInput').addEventListener('change', function(e){ loadFile(e.target.files[0]); });
+document.getElementById('camInput').addEventListener('change',  function(e){ loadFile(e.target.files[0]); });
 
-window.openGallery = function () { document.getElementById('fileInput').click(); };
-window.openCamera = function () {
-  const ci = document.getElementById('cameraInput');
-  ci.setAttribute('capture', 'user');
-  ci.click();
-};
+var dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',  function(e){ e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+dz.addEventListener('drop',      function(e){ e.preventDefault(); dz.classList.remove('drag'); loadFile(e.dataTransfer.files[0]); });
 
-function handleFile(file) {
-  if (!file) return;
-  if (!file.type.match(/image\/(jpeg|png|webp)/)) { toast('err', 'Only JPG, PNG, WebP accepted'); return; }
-  if (file.size > 10 * 1024 * 1024) { toast('err', 'Max file size is 10 MB'); return; }
-  const r = new FileReader();
-  r.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      APP.origImg = img; APP.workImg = img;
-      APP.passURL = null;
-      showEditPreview(img);
-      goScreen('edit');
-      toast('ok', 'Photo loaded! Tap Generate');
+function loadFile(f) {
+  if (!f) return;
+  if (!f.type.match(/image\/(jpeg|png|webp)/)) { showToast('err','Use JPG, PNG or WebP'); return; }
+  if (f.size > 10*1024*1024) { showToast('err','Max file size is 10 MB'); return; }
+  var r = new FileReader();
+  r.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      S.origImg = img; S.workImg = img; S.passURL = null;
+      renderEditPreview(img);
+      gotoTab('edit');
+      showToast('ok','Photo loaded — tap Generate!');
     };
     img.src = e.target.result;
   };
-  r.readAsDataURL(file);
+  r.readAsDataURL(f);
 }
 
-/* DRAG & DROP on upload zone */
-const UZ = document.getElementById('uploadZone');
-if (UZ) {
-  UZ.addEventListener('dragover', e => { e.preventDefault(); UZ.classList.add('drag'); });
-  UZ.addEventListener('dragleave', () => UZ.classList.remove('drag'));
-  UZ.addEventListener('drop', e => { e.preventDefault(); UZ.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
-}
-
-/* ── EDIT PREVIEW ─────────────────────────────────────── */
-function showEditPreview(img) {
-  const c = document.getElementById('editPreviewContainer');
-  c.innerHTML = '';
-  const el = document.createElement('img');
-  el.src = img.src;
-  el.style.cssText = 'max-width:100%;max-height:45vh;border-radius:10px;display:block;';
-  c.appendChild(el);
-  c.style.position = 'relative';
-}
-
-function drawFaceBox(imgEl, box, natW, natH) {
-  const old = document.querySelector('.face-svg');
+/* ══════════════════════════════════════════════════════
+   EDIT PREVIEW
+══════════════════════════════════════════════════════ */
+function renderEditPreview(img) {
+  var wrap = document.getElementById('editImgWrap');
+  // Remove old img, keep proc overlay
+  var old = wrap.querySelector('img');
   if (old) old.remove();
-  const dW = imgEl.offsetWidth || 280;
-  const dH = imgEl.offsetHeight || 280;
-  const sx = dW / natW, sy = dH / natH;
-  const ns = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${dW} ${dH}`);
-  svg.style.cssText = `position:absolute;top:0;left:0;width:${dW}px;height:${dH}px;pointer-events:none`;
-  svg.classList.add('face-svg');
-  // Highlight bg
-  const bg = document.createElementNS(ns, 'rect');
-  bg.setAttribute('x', box.x * sx); bg.setAttribute('y', box.y * sy);
-  bg.setAttribute('width', box.w * sx); bg.setAttribute('height', box.h * sy);
-  bg.setAttribute('fill', 'rgba(74,158,106,0.12)'); bg.setAttribute('rx', '6');
-  // Border
-  const rect = document.createElementNS(ns, 'rect');
-  rect.setAttribute('x', box.x * sx); rect.setAttribute('y', box.y * sy);
-  rect.setAttribute('width', box.w * sx); rect.setAttribute('height', box.h * sy);
-  rect.setAttribute('fill', 'none'); rect.setAttribute('stroke', '#4a9e6a');
-  rect.setAttribute('stroke-width', '2'); rect.setAttribute('rx', '6');
-  rect.setAttribute('stroke-dasharray', '5 3');
-  // Label
-  const txt = document.createElementNS(ns, 'text');
-  txt.setAttribute('x', box.x * sx + 6); txt.setAttribute('y', box.y * sy - 7);
-  txt.setAttribute('fill', '#4a9e6a'); txt.setAttribute('font-size', '11');
-  txt.setAttribute('font-weight', '600'); txt.setAttribute('font-family', 'DM Sans,sans-serif');
-  txt.textContent = '✓ Face detected';
-  svg.appendChild(bg); svg.appendChild(rect); svg.appendChild(txt);
-  const c = document.getElementById('editPreviewContainer');
-  c.appendChild(svg);
+  var oldSvg = wrap.querySelector('.fsvg');
+  if (oldSvg) oldSvg.remove();
+  var el = document.createElement('img');
+  el.src = img.src;
+  el.style.cssText = 'max-width:100%;max-height:42vh;border-radius:10px;display:block;';
+  wrap.insertBefore(el, wrap.firstChild);
+  // Add badge
+  var badge = wrap.querySelector('.edit-badge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.className = 'edit-badge';
+    badge.textContent = 'Original';
+    wrap.appendChild(badge);
+  }
+  // Add action buttons
+  var acts = wrap.querySelector('.edit-actions');
+  if (!acts) {
+    acts = document.createElement('div');
+    acts.className = 'edit-actions';
+    acts.innerHTML = '<div class="edit-act-btn" onclick="openCrop()" title="Crop">✂️</div><div class="edit-act-btn" onclick="document.getElementById(\'fileInput\').click()" title="Change">📁</div>';
+    wrap.appendChild(acts);
+  }
 }
 
-/* ── FACE DETECTION ───────────────────────────────────── */
+function drawFaceOverlay(imgEl, box, nW, nH) {
+  var wrap = document.getElementById('editImgWrap');
+  var old = wrap.querySelector('.fsvg'); if (old) old.remove();
+  var dW = imgEl.offsetWidth||280, dH = imgEl.offsetHeight||280;
+  var sx = dW/nW, sy = dH/nH;
+  var ns = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 '+dW+' '+dH);
+  svg.style.cssText='position:absolute;top:0;left:0;width:'+dW+'px;height:'+dH+'px;pointer-events:none';
+  svg.classList.add('fsvg');
+  var bg=document.createElementNS(ns,'rect');
+  bg.setAttribute('x',box.x*sx);bg.setAttribute('y',box.y*sy);
+  bg.setAttribute('width',box.w*sx);bg.setAttribute('height',box.h*sy);
+  bg.setAttribute('fill','rgba(74,158,106,.1)');bg.setAttribute('rx','6');
+  var rect=document.createElementNS(ns,'rect');
+  rect.setAttribute('x',box.x*sx);rect.setAttribute('y',box.y*sy);
+  rect.setAttribute('width',box.w*sx);rect.setAttribute('height',box.h*sy);
+  rect.setAttribute('fill','none');rect.setAttribute('stroke','#4a9e6a');
+  rect.setAttribute('stroke-width','2');rect.setAttribute('rx','6');
+  rect.setAttribute('stroke-dasharray','5 3');
+  var txt=document.createElementNS(ns,'text');
+  txt.setAttribute('x',box.x*sx+6);txt.setAttribute('y',box.y*sy-7);
+  txt.setAttribute('fill','#4a9e6a');txt.setAttribute('font-size','11');
+  txt.setAttribute('font-family','DM Sans,sans-serif');txt.setAttribute('font-weight','600');
+  txt.textContent='✓ Face detected';
+  svg.appendChild(bg);svg.appendChild(rect);svg.appendChild(txt);
+  wrap.appendChild(svg);
+}
+
+/* ══════════════════════════════════════════════════════
+   AI MODEL
+══════════════════════════════════════════════════════ */
+async function getModel() {
+  if (S.bfModel) return S.bfModel;
+  if (S.modelLoading) return new Promise(function(res){ var iv=setInterval(function(){ if(S.bfModel){clearInterval(iv);res(S.bfModel);} },200); });
+  S.modelLoading = true;
+  try { S.bfModel = await blazeface.load(); } catch(e){ console.warn(e); }
+  S.modelLoading = false;
+  return S.bfModel;
+}
+getModel(); // preload in background
+
+/* ══════════════════════════════════════════════════════
+   FACE DETECTION
+══════════════════════════════════════════════════════ */
 async function detectFace(img) {
-  setProc('🔍 Detecting face…', 20);
-  const model = await loadModel();
-  const W = img.naturalWidth || img.width;
-  const H = img.naturalHeight || img.height;
+  setStep('🔍 Detecting face…', 22);
+  var W = img.naturalWidth||img.width, H = img.naturalHeight||img.height;
+  var model = await getModel();
   if (model) {
-    const tc = document.createElement('canvas');
-    tc.width = W; tc.height = H;
-    tc.getContext('2d').drawImage(img, 0, 0);
-    let preds = [];
-    try { preds = await model.estimateFaces(tc, false); } catch (e) { console.warn(e); }
+    var tc = document.createElement('canvas'); tc.width=W; tc.height=H;
+    tc.getContext('2d').drawImage(img,0,0);
+    var preds = [];
+    try { preds = await model.estimateFaces(tc,false); } catch(e){}
     if (preds && preds.length > 0) {
-      let best = preds[0];
+      var best = preds[0];
       if (preds.length > 1) {
-        let maxA = 0;
-        preds.forEach(p => {
-          const a = (p.bottomRight[0] - p.topLeft[0]) * (p.bottomRight[1] - p.topLeft[1]);
-          if (a > maxA) { maxA = a; best = p; }
-        });
+        var ma = 0;
+        preds.forEach(function(p){ var a=(p.bottomRight[0]-p.topLeft[0])*(p.bottomRight[1]-p.topLeft[1]); if(a>ma){ma=a;best=p;} });
       }
-      const box = {
-        x: best.topLeft[0], y: best.topLeft[1],
-        w: best.bottomRight[0] - best.topLeft[0],
-        h: best.bottomRight[1] - best.topLeft[1]
-      };
-      // Draw box on preview
-      const previewImg = document.querySelector('#editPreviewContainer img');
-      if (previewImg) drawFaceBox(previewImg, box, W, H);
-      toast('ok', '✓ Face detected!');
+      var box = { x:best.topLeft[0],y:best.topLeft[1],w:best.bottomRight[0]-best.topLeft[0],h:best.bottomRight[1]-best.topLeft[1] };
+      var imgEl = document.querySelector('#editImgWrap img');
+      if (imgEl) drawFaceOverlay(imgEl, box, W, H);
+      showToast('ok','✓ Face detected!');
       return box;
     }
   }
-  toast('wrn', '⚠ No face found — using smart crop');
-  return { x: W * 0.24, y: H * 0.06, w: W * 0.52, h: H * 0.42 };
+  showToast('wrn','⚠ No face found — using smart crop');
+  return { x:W*.24, y:H*.06, w:W*.52, h:H*.42 };
 }
 
-/* ── BACKGROUND REMOVAL ───────────────────────────────── */
-function removeBg(ctx, W, H, faceBox, cropX, cropY, cropW, cropH) {
-  const id = ctx.getImageData(0, 0, W, H);
-  const d = id.data;
-  const bgR = parseInt(APP.bgColor.slice(1, 3), 16) || 255;
-  const bgG = parseInt(APP.bgColor.slice(3, 5), 16) || 255;
-  const bgB = parseInt(APP.bgColor.slice(5, 7), 16) || 255;
-  const rad = parseInt(document.getElementById('sBgR').value) / 100;
-  const fea = parseInt(document.getElementById('sBgF').value) / 100;
-  const scX = W / cropW, scY = H / cropH;
-  const fcx = ((faceBox.x + faceBox.w / 2) - cropX) * scX;
-  const fcy = ((faceBox.y + faceBox.h / 2) - cropY) * scY;
-  const eRX = (faceBox.w / 2) * scX * (1.2 / rad);
-  const eRY = (faceBox.h / 2) * scY * (1.1 / rad);
-  // Sample corners
-  let cR = 0, cG = 0, cB = 0;
-  [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(([x,y]) => {
-    const i = (y*W+x)*4; cR += d[i]; cG += d[i+1]; cB += d[i+2];
-  });
-  cR /= 4; cG /= 4; cB /= 4;
-  const tR = bgR * .7 + cR * .3, tG = bgG * .7 + cG * .3, tB = bgB * .7 + cB * .3;
-  const inner = 1.0 - fea * 0.85;
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const i = (y * W + x) * 4;
-      const dx2 = (x - fcx) / (eRX * 1.1);
-      const dy2 = (y - fcy * 1.02) / (eRY * 1.85);
-      const dist = Math.sqrt(dx2*dx2 + dy2*dy2);
-      let blend = 0;
-      if (dist > inner) { blend = Math.min(1, (dist-inner)/(fea*1.2+.05)); blend = Math.pow(blend, 1.5); }
-      const ey = Math.min(y/(H*.06),(H-y)/(H*.055));
-      const ex = Math.min(x/(W*.055),(W-x)/(W*.055));
-      const eb = 1 - Math.min(1, Math.min(ey, ex));
-      blend = Math.max(blend, eb * eb);
-      if (blend > .001) {
-        d[i]   = Math.round(d[i]   * (1-blend) + tR * blend);
-        d[i+1] = Math.round(d[i+1] * (1-blend) + tG * blend);
-        d[i+2] = Math.round(d[i+2] * (1-blend) + tB * blend);
-      }
+/* ══════════════════════════════════════════════════════
+   BACKGROUND REMOVAL
+══════════════════════════════════════════════════════ */
+function removeBg(ctx, W, H, fb, cx, cy, cw, ch) {
+  var id = ctx.getImageData(0,0,W,H), d = id.data;
+  var bgR=parseInt(S.bgColor.slice(1,3),16)||255;
+  var bgG=parseInt(S.bgColor.slice(3,5),16)||255;
+  var bgB=parseInt(S.bgColor.slice(5,7),16)||255;
+  var rad=parseInt(document.getElementById('sBgR').value)/100;
+  var fea=parseInt(document.getElementById('sBgF').value)/100;
+  var sx=W/cw, sy=H/ch;
+  var fcx=((fb.x+fb.w/2)-cx)*sx, fcy=((fb.y+fb.h/2)-cy)*sy;
+  var eRX=(fb.w/2)*sx*(1.2/rad), eRY=(fb.h/2)*sy*(1.1/rad);
+  var cR=0,cG=0,cB=0;
+  [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(function(p){ var i=(p[1]*W+p[0])*4; cR+=d[i];cG+=d[i+1];cB+=d[i+2]; });
+  cR/=4;cG/=4;cB/=4;
+  var tR=bgR*.7+cR*.3, tG=bgG*.7+cG*.3, tB=bgB*.7+cB*.3;
+  var inner=1.0-fea*.85;
+  for (var y=0;y<H;y++) {
+    for (var x=0;x<W;x++) {
+      var i=(y*W+x)*4;
+      var dx2=(x-fcx)/(eRX*1.1), dy2=(y-fcy*1.02)/(eRY*1.85);
+      var dist=Math.sqrt(dx2*dx2+dy2*dy2);
+      var bl=0;
+      if(dist>inner){bl=Math.min(1,(dist-inner)/(fea*1.2+.05));bl=Math.pow(bl,1.5);}
+      var ey=Math.min(y/(H*.06),(H-y)/(H*.055));
+      var ex=Math.min(x/(W*.055),(W-x)/(W*.055));
+      var eb=1-Math.min(1,Math.min(ey,ex));
+      bl=Math.max(bl,eb*eb);
+      if(bl>.001){ d[i]=Math.round(d[i]*(1-bl)+tR*bl); d[i+1]=Math.round(d[i+1]*(1-bl)+tG*bl); d[i+2]=Math.round(d[i+2]*(1-bl)+tB*bl); }
     }
   }
-  ctx.putImageData(id, 0, 0);
+  ctx.putImageData(id,0,0);
 }
 
-/* ── FILTERS ──────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   FILTERS
+══════════════════════════════════════════════════════ */
 function applyFilters(ctx, canvas) {
-  const br = parseFloat(document.getElementById('sBr').value) / 100;
-  const co = parseFloat(document.getElementById('sCo').value) / 100;
-  const sh = parseInt(document.getElementById('sSh').value);
-  const sa = parseFloat(document.getElementById('sSa').value) / 100;
-  const wm = parseInt(document.getElementById('sWm').value);
-  const W = canvas.width, H = canvas.height;
-  const id = ctx.getImageData(0, 0, W, H); const d = id.data;
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i], g = d[i+1], b = d[i+2];
-    r *= br; g *= br; b *= br;
-    r = ((r/255-.5)*co+.5)*255;
-    g = ((g/255-.5)*co+.5)*255;
-    b = ((b/255-.5)*co+.5)*255;
-    const gray = .2126*r + .7152*g + .0722*b;
-    r = gray + (r-gray)*sa; g = gray + (g-gray)*sa; b = gray + (b-gray)*sa;
-    r += wm; b -= wm * .65;
-    d[i] = Math.min(255,Math.max(0,r));
-    d[i+1] = Math.min(255,Math.max(0,g));
-    d[i+2] = Math.min(255,Math.max(0,b));
+  var br=parseFloat(document.getElementById('sBr').value)/100;
+  var co=parseFloat(document.getElementById('sCo').value)/100;
+  var sh=parseInt(document.getElementById('sSh').value);
+  var sa=parseFloat(document.getElementById('sSa').value)/100;
+  var wm=parseInt(document.getElementById('sWm').value);
+  var W=canvas.width,H=canvas.height;
+  var id=ctx.getImageData(0,0,W,H),d=id.data;
+  for(var i=0;i<d.length;i+=4){
+    var r=d[i]*br,g=d[i+1]*br,b=d[i+2]*br;
+    r=((r/255-.5)*co+.5)*255; g=((g/255-.5)*co+.5)*255; b=((b/255-.5)*co+.5)*255;
+    var gr=.2126*r+.7152*g+.0722*b;
+    r=gr+(r-gr)*sa; g=gr+(g-gr)*sa; b=gr+(b-gr)*sa;
+    r+=wm; b-=wm*.65;
+    d[i]=Math.min(255,Math.max(0,r)); d[i+1]=Math.min(255,Math.max(0,g)); d[i+2]=Math.min(255,Math.max(0,b));
   }
-  ctx.putImageData(id, 0, 0);
-  if (sh > 5) applySharpness(ctx, canvas, sh / 120);
+  ctx.putImageData(id,0,0);
+  if(sh>5) sharpen(ctx,canvas,sh/120);
 }
 
-function applySharpness(ctx, canvas, amt) {
-  const W = canvas.width, H = canvas.height;
-  const src = ctx.getImageData(0, 0, W, H);
-  const dst = ctx.createImageData(W, H);
-  const s = src.data, d = dst.data;
-  const k = [-1,-1,-1,-1,9,-1,-1,-1,-1];
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const i = (y*W+x)*4; let r=0,g=0,b=0;
-      for (let ky = 0; ky < 3; ky++) {
-        for (let kx = 0; kx < 3; kx++) {
-          const sy2 = Math.min(H-1,Math.max(0,y+ky-1));
-          const sx2 = Math.min(W-1,Math.max(0,x+kx-1));
-          const si = (sy2*W+sx2)*4; const kv = k[ky*3+kx];
-          r += s[si]*kv; g += s[si+1]*kv; b += s[si+2]*kv;
-        }
-      }
-      d[i]   = Math.min(255,Math.max(0,s[i]  *(1-amt)+r*amt));
-      d[i+1] = Math.min(255,Math.max(0,s[i+1]*(1-amt)+g*amt));
-      d[i+2] = Math.min(255,Math.max(0,s[i+2]*(1-amt)+b*amt));
-      d[i+3] = s[i+3];
-    }
-  }
-  ctx.putImageData(dst, 0, 0);
+function sharpen(ctx,canvas,amt){
+  var W=canvas.width,H=canvas.height;
+  var src=ctx.getImageData(0,0,W,H),dst=ctx.createImageData(W,H);
+  var s=src.data,d=dst.data,k=[-1,-1,-1,-1,9,-1,-1,-1,-1];
+  for(var y=0;y<H;y++){ for(var x=0;x<W;x++){
+    var i=(y*W+x)*4,r=0,g=0,b=0;
+    for(var ky=0;ky<3;ky++){ for(var kx=0;kx<3;kx++){
+      var sy2=Math.min(H-1,Math.max(0,y+ky-1)),sx2=Math.min(W-1,Math.max(0,x+kx-1));
+      var si=(sy2*W+sx2)*4,kv=k[ky*3+kx];
+      r+=s[si]*kv;g+=s[si+1]*kv;b+=s[si+2]*kv;
+    }}
+    d[i]=Math.min(255,Math.max(0,s[i]*(1-amt)+r*amt));
+    d[i+1]=Math.min(255,Math.max(0,s[i+1]*(1-amt)+g*amt));
+    d[i+2]=Math.min(255,Math.max(0,s[i+2]*(1-amt)+b*amt));
+    d[i+3]=s[i+3];
+  }}
+  ctx.putImageData(dst,0,0);
 }
 
-/* ── MAIN GENERATE ────────────────────────────────────── */
-window.generatePassport = async function () {
-  const src = APP.workImg || APP.origImg;
-  if (!src) { toast('err', 'Upload a photo first'); return; }
-  const genBtn = document.getElementById('genBtn');
-  if (genBtn) genBtn.disabled = true;
-  showProc(true, 'Loading AI…', 5);
+/* ══════════════════════════════════════════════════════
+   GENERATE — main pipeline
+══════════════════════════════════════════════════════ */
+async function generatePassport() {
+  var src = S.workImg || S.origImg;
+  if (!src) { showToast('err','Upload a photo first!'); gotoTab('upload'); return; }
+  var btn = document.getElementById('genBtn');
+  if (btn) btn.disabled = true;
+  showProc(true,'Loading AI…',5);
   try {
-    const faceBox = await detectFace(src);
-    setProc('📐 Computing crop…', 38);
-    const W = src.naturalWidth || src.width;
-    const H = src.naturalHeight || src.height;
-    const frameH = faceBox.h / 0.73;
-    const frameW = frameH * (APP.outW / APP.outH);
-    const fcx = faceBox.x + faceBox.w / 2;
-    const fcy = faceBox.y + faceBox.h / 2;
-    let cX = fcx - frameW / 2;
-    let cY = fcy - frameH * APP.headVPos;
-    let cW = frameW, cH = frameH;
-    cX = Math.max(0, cX); cY = Math.max(0, cY);
-    if (cX + cW > W) cX = W - cW;
-    if (cY + cH > H) cY = H - cH;
-    cX = Math.max(0, cX); cY = Math.max(0, cY);
-    if (cW > W) cW = W; if (cH > H) cH = H;
+    var fb = await detectFace(src);
+    setStep('📐 Auto-cropping…',40);
+    var W=src.naturalWidth||src.width, H=src.naturalHeight||src.height;
+    var fH=fb.h/0.73, fW=fH*(S.outW/S.outH);
+    var fcx=fb.x+fb.w/2, fcy=fb.y+fb.h/2;
+    var cX=fcx-fW/2, cY=fcy-fH*S.headV, cW=fW, cH=fH;
+    cX=Math.max(0,cX); cY=Math.max(0,cY);
+    if(cX+cW>W)cX=W-cW; if(cY+cH>H)cY=H-cH;
+    cX=Math.max(0,cX); cY=Math.max(0,cY);
+    if(cW>W)cW=W; if(cH>H)cH=H;
 
-    setProc('🎨 Removing background…', 56);
-    await sleep(60);
+    setStep('🎨 Removing background…',57); await sleep(60);
+    var canvas=document.getElementById('passCanvas');
+    canvas.width=S.outW; canvas.height=S.outH;
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle=S.bgColor; ctx.fillRect(0,0,S.outW,S.outH);
+    ctx.drawImage(src,cX,cY,cW,cH,0,0,S.outW,S.outH);
 
-    const canvas = document.getElementById('passCanvas');
-    canvas.width = APP.outW; canvas.height = APP.outH;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = APP.bgColor;
-    ctx.fillRect(0, 0, APP.outW, APP.outH);
-    ctx.drawImage(src, cX, cY, cW, cH, 0, 0, APP.outW, APP.outH);
+    setStep('✂️ Segmenting…',70); await sleep(60);
+    removeBg(ctx,S.outW,S.outH,fb,cX,cY,cW,cH);
 
-    setProc('✂️ Segmenting subject…', 70);
-    await sleep(60);
-    removeBg(ctx, APP.outW, APP.outH, faceBox, cX, cY, cW, cH);
+    setStep('✨ Enhancing…',85); await sleep(40);
+    applyFilters(ctx,canvas);
 
-    setProc('✨ Enhancing…', 85);
-    await sleep(40);
-    applyFilters(ctx, canvas);
-
-    setProc('✅ Done!', 100);
-    await sleep(300);
+    setStep('✅ Done!',100); await sleep(260);
     showProc(false);
-
-    APP.passURL = canvas.toDataURL('image/png');
-    saveToHistory(APP.passURL);
-    renderResultScreen();
-    goScreen('result');
-    toast('ok', '✓ Passport photo ready!');
-  } catch (err) {
-    console.error(err);
-    showProc(false);
-    toast('err', 'Processing failed — try another photo');
+    S.passURL = canvas.toDataURL('image/png');
+    saveHistory(S.passURL);
+    gotoTab('result');
+    showToast('ok','✓ Passport photo ready!');
+  } catch(err) {
+    console.error(err); showProc(false);
+    showToast('err','Processing failed — try another photo');
   }
-  if (genBtn) genBtn.disabled = false;
-};
+  if(btn) btn.disabled=false;
+}
 
-function renderResultScreen() {
-  // Canvas already has the result
-  const canvas = document.getElementById('passCanvas');
-  const resultCanvas = document.getElementById('resultCanvas');
-  if (resultCanvas && canvas) {
-    resultCanvas.width = canvas.width;
-    resultCanvas.height = canvas.height;
-    resultCanvas.getContext('2d').drawImage(canvas, 0, 0);
-  }
-  // Sheet mini
-  const mini = document.getElementById('sheetMini');
-  if (mini && APP.passURL) {
-    mini.innerHTML = '';
-    for (let i = 0; i < 4; i++) {
-      const cell = document.createElement('div'); cell.className = 'sheet-mini-cell';
-      const img = document.createElement('img'); img.src = APP.passURL;
-      cell.appendChild(img); mini.appendChild(cell);
+function applyAdjust() {
+  if (!S.passURL) { showToast('wrn','Generate first'); return; }
+  var canvas=document.getElementById('passCanvas');
+  var ctx=canvas.getContext('2d');
+  var img=new Image();
+  img.onload=function(){
+    ctx.fillStyle=S.bgColor; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0); applyFilters(ctx,canvas);
+    S.passURL=canvas.toDataURL('image/png');
+    var rc=document.getElementById('resultCanvas');
+    if(rc){rc.width=canvas.width;rc.height=canvas.height;rc.getContext('2d').drawImage(canvas,0,0);}
+    showToast('ok','✓ Applied!');
+  };
+  img.src=S.passURL;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESULT RENDER
+══════════════════════════════════════════════════════ */
+function renderResult() {
+  if (!S.passURL) return;
+  var pc=document.getElementById('passCanvas');
+  var rc=document.getElementById('resultCanvas');
+  if (rc&&pc) { rc.width=pc.width; rc.height=pc.height; rc.getContext('2d').drawImage(pc,0,0); }
+  var meta=document.getElementById('resMeta');
+  if(meta) meta.style.display='flex';
+  var mini=document.getElementById('sheetMini');
+  if(mini&&S.passURL){
+    mini.innerHTML='';
+    for(var i=0;i<4;i++){
+      var c=document.createElement('div'); c.className='sm-cell';
+      var im=document.createElement('img'); im.src=S.passURL;
+      c.appendChild(im); mini.appendChild(c);
     }
   }
 }
 
-/* ── REAPPLY FILTERS ──────────────────────────────────── */
-window.reapplyFilters = function () {
-  if (!APP.passURL) return;
-  const canvas = document.getElementById('passCanvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-  img.onload = () => {
-    ctx.fillStyle = APP.bgColor; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-    applyFilters(ctx, canvas);
-    APP.passURL = canvas.toDataURL('image/png');
-    // update result canvas too
-    const rc = document.getElementById('resultCanvas');
-    if (rc) { rc.width = canvas.width; rc.height = canvas.height; rc.getContext('2d').drawImage(canvas,0,0); }
-    toast('ok', '✓ Applied!');
-  };
-  img.src = APP.passURL;
-};
-
-/* ── SLIDERS ──────────────────────────────────────────── */
-[['sBr','vBr'],['sCo','vCo'],['sSh','vSh'],['sSa','vSa'],['sWm','vWm'],['sBgR','vBgR'],['sBgF','vBgF']].forEach(([sid,vid]) => {
-  const el = document.getElementById(sid);
-  if (el) el.addEventListener('input', () => {
-    const v = document.getElementById(vid);
-    if (v) v.textContent = el.value;
-  });
+/* ══════════════════════════════════════════════════════
+   SLIDERS
+══════════════════════════════════════════════════════ */
+[['sBr','vBr'],['sCo','vCo'],['sSh','vSh'],['sSa','vSa'],['sWm','vWm'],['sBgR','vBgR'],['sBgF','vBgF']].forEach(function(p){
+  var el=document.getElementById(p[0]);
+  if(el) el.addEventListener('input',function(){ var v=document.getElementById(p[1]); if(v) v.textContent=el.value; });
 });
-
-window.resetSliders = function () {
-  const def = { sBr:100,sCo:108,sSh:40,sSa:108,sWm:4,sBgR:68,sBgF:28 };
-  Object.entries(def).forEach(([k,v]) => {
-    const el = document.getElementById(k);
-    if (el) { el.value = v; const ve = document.getElementById('v'+k.slice(1)); if (ve) ve.textContent = v; }
+function resetSliders(){
+  var def={sBr:100,sCo:108,sSh:40,sSa:108,sWm:4,sBgR:68,sBgF:28};
+  Object.keys(def).forEach(function(k){
+    var el=document.getElementById(k); if(!el) return;
+    el.value=def[k];
+    var v=document.getElementById('v'+k.slice(1)); if(v) v.textContent=def[k];
   });
-};
-
-/* ── BG COLOR ─────────────────────────────────────────── */
-document.querySelectorAll('.swatch').forEach(sw => {
-  sw.addEventListener('click', () => {
-    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('sel'));
-    sw.classList.add('sel');
-    APP.bgColor = sw.dataset.c;
-    if (APP.passURL) generatePassport();
-  });
-});
-const custC = document.getElementById('custC');
-if (custC) custC.addEventListener('input', e => {
-  APP.bgColor = e.target.value;
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('sel'));
-  if (APP.passURL) generatePassport();
-});
-
-/* ── SIZE ─────────────────────────────────────────────── */
-window.setSz = function (w, h, el) {
-  document.querySelectorAll('.size-pill').forEach(p => p.classList.remove('sel'));
-  el.classList.add('sel');
-  APP.outW = w; APP.outH = h;
-  if (APP.passURL) generatePassport();
-};
-
-/* ── HEAD POSITION ────────────────────────────────────── */
-window.setHeadPos = function (v) {
-  APP.headVPos = v;
-  if (APP.passURL) generatePassport();
-};
-
-/* ── TOOL CARD COLLAPSE ───────────────────────────────── */
-document.querySelectorAll('.tool-card-hdr').forEach(hdr => {
-  hdr.addEventListener('click', () => {
-    hdr.closest('.tool-card').classList.toggle('collapsed');
-  });
-});
-
-/* ── MANUAL CROP ──────────────────────────────────────── */
-window.openCropModal = function () {
-  if (!APP.origImg) { toast('err', 'Upload a photo first'); return; }
-  const img = document.getElementById('cropImg');
-  img.src = APP.origImg.src;
-  const modal = document.getElementById('cropSheet');
-  const bd = document.getElementById('cropBackdrop');
-  modal.classList.add('open'); bd.classList.add('open');
-  setTimeout(resetCropBox, 150);
-};
-window.closeCropModal = function () {
-  document.getElementById('cropSheet').classList.remove('open');
-  document.getElementById('cropBackdrop').classList.remove('open');
-};
-
-function resetCropBox() {
-  const img = document.getElementById('cropImg');
-  const W = img.offsetWidth, H = img.offsetHeight;
-  if (!W || !H) { setTimeout(resetCropBox, 100); return; }
-  setCropBox(W * .12, H * .12, W * .76, H * .76);
-}
-window.resetCropBox = resetCropBox;
-
-function setCropBox(x, y, w, h) {
-  const box = document.getElementById('cropBox');
-  const img = document.getElementById('cropImg');
-  const W = img.offsetWidth, H = img.offsetHeight;
-  x = Math.max(0, Math.min(W - w, x));
-  y = Math.max(0, Math.min(H - h, y));
-  w = Math.min(w, W - x); h = Math.min(h, H - y);
-  APP.cropState.ob = { x, y, w, h };
-  box.style.left = x + 'px'; box.style.top = y + 'px';
-  box.style.width = w + 'px'; box.style.height = h + 'px';
-  const img2 = document.getElementById('cropImg');
-  const scX = img2.naturalWidth / W, scY = img2.naturalHeight / H;
-  const ci = document.getElementById('cropInfoText');
-  if (ci) ci.textContent = Math.round(w*scX) + ' × ' + Math.round(h*scY) + ' px';
 }
 
-const cbox = document.getElementById('cropBox');
-if (cbox) {
-  cbox.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); startCrop(e.clientX, e.clientY, e.target.dataset.h || 'move'); });
-  cbox.addEventListener('touchstart', e => { const t = e.touches[0]; e.preventDefault(); e.stopPropagation(); startCrop(t.clientX, t.clientY, e.target.dataset.h || 'move'); }, { passive: false });
-}
-document.addEventListener('mousemove', e => { if (APP.cropState.drag) doCrop(e.clientX, e.clientY); });
-document.addEventListener('touchmove', e => { if (APP.cropState.drag) { e.preventDefault(); doCrop(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
-document.addEventListener('mouseup', () => { APP.cropState.drag = false; });
-document.addEventListener('touchend', () => { APP.cropState.drag = false; });
+/* ══════════════════════════════════════════════════════
+   BG COLOR
+══════════════════════════════════════════════════════ */
+document.querySelectorAll('.sw').forEach(function(sw){
+  sw.addEventListener('click',function(){
+    document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('on');});
+    sw.classList.add('on'); S.bgColor=sw.dataset.c;
+    if(S.passURL) generatePassport();
+  });
+});
+var cc=document.getElementById('custC');
+if(cc) cc.addEventListener('input',function(e){
+  S.bgColor=e.target.value;
+  document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('on');});
+  if(S.passURL) generatePassport();
+});
 
-function startCrop(cx, cy, handle) {
-  const b = document.getElementById('cropBox');
-  APP.cropState = {
-    drag: true, handle,
-    sx: cx, sy: cy,
-    ob: { x: parseFloat(b.style.left), y: parseFloat(b.style.top), w: parseFloat(b.style.width), h: parseFloat(b.style.height) }
-  };
+/* ══════════════════════════════════════════════════════
+   SIZE & HEAD
+══════════════════════════════════════════════════════ */
+function setSz(w,h,el){
+  document.querySelectorAll('#tc-size .pill').forEach(function(p){ if(p.onclick&&p.onclick.toString().includes('setSz')) p.classList.remove('on'); });
+  el.classList.add('on'); S.outW=w; S.outH=h;
+  if(S.passURL) generatePassport();
 }
-function doCrop(cx, cy) {
-  const dx = cx - APP.cropState.sx, dy = cy - APP.cropState.sy;
-  const MIN = 50;
-  let { x, y, w, h } = APP.cropState.ob;
-  const hd = APP.cropState.handle;
-  if (hd === 'move') { x += dx; y += dy; }
-  else {
-    if (hd === 'tl' || hd === 'ml') { const nw = w - dx; if (nw > MIN) { x += dx; w = nw; } }
-    if (hd === 'tr' || hd === 'mr') { w = Math.max(MIN, w + dx); }
-    if (hd === 'tl' || hd === 'tm') { const nh = h - dy; if (nh > MIN) { y += dy; h = nh; } }
-    if (hd === 'bl' || hd === 'bm') { h = Math.max(MIN, h + dy); }
-    if (hd === 'br') { w = Math.max(MIN, w + dx); h = Math.max(MIN, h + dy); }
-    if (hd === 'tr') { w = Math.max(MIN, w + dx); const nh = h - dy; if (nh > MIN) { y += dy; h = nh; } }
-    if (hd === 'bl') { const nw = w - dx; if (nw > MIN) { x += dx; w = nw; } h = Math.max(MIN, h + dy); }
+function setHead(v,el){
+  document.querySelectorAll('#tc-size .pill').forEach(function(p){ if(p.onclick&&p.onclick.toString().includes('setHead')) p.classList.remove('on'); });
+  el.classList.add('on'); S.headV=v;
+  if(S.passURL) generatePassport();
+}
+
+/* ══════════════════════════════════════════════════════
+   TOOL CARD TOGGLE
+══════════════════════════════════════════════════════ */
+function toggleCard(id){
+  var card=document.getElementById(id);
+  var hdr=card.querySelector('.tcard-hdr');
+  var body=card.querySelector('.tcard-body');
+  hdr.classList.toggle('open'); body.classList.toggle('open');
+}
+
+/* ══════════════════════════════════════════════════════
+   MANUAL CROP
+══════════════════════════════════════════════════════ */
+function openCrop(){
+  if(!S.origImg){showToast('err','Upload a photo first');return;}
+  var img=document.getElementById('cropImg');
+  img.src=S.origImg.src;
+  document.getElementById('crBd').classList.add('on');
+  document.getElementById('crSheet').classList.add('on');
+  setTimeout(resetCrop,180);
+}
+function closeCrop(){
+  document.getElementById('crBd').classList.remove('on');
+  document.getElementById('crSheet').classList.remove('on');
+}
+function resetCrop(){
+  var img=document.getElementById('cropImg');
+  var W=img.offsetWidth,H=img.offsetHeight;
+  if(!W||!H){setTimeout(resetCrop,100);return;}
+  setCropBox(W*.12,H*.12,W*.76,H*.76);
+}
+function setCropBox(x,y,w,h){
+  var box=document.getElementById('cropBox');
+  var img=document.getElementById('cropImg');
+  var W=img.offsetWidth,H=img.offsetHeight;
+  x=Math.max(0,Math.min(W-w,x)); y=Math.max(0,Math.min(H-h,y));
+  w=Math.min(w,W-x); h=Math.min(h,H-y);
+  S.cropOb={x,y,w,h};
+  box.style.left=x+'px'; box.style.top=y+'px';
+  box.style.width=w+'px'; box.style.height=h+'px';
+  var scX=img.naturalWidth/W, scY=img.naturalHeight/H;
+  var ci=document.getElementById('crInfo');
+  if(ci) ci.textContent=Math.round(w*scX)+' × '+Math.round(h*scY)+' px';
+}
+
+var cbox=document.getElementById('cropBox');
+cbox.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();startDrag(e.clientX,e.clientY,e.target.dataset.h||'move');});
+cbox.addEventListener('touchstart',function(e){var t=e.touches[0];e.preventDefault();e.stopPropagation();startDrag(t.clientX,t.clientY,e.target.dataset.h||'move');},{passive:false});
+document.addEventListener('mousemove',function(e){if(S.cropDrag)doDrag(e.clientX,e.clientY);});
+document.addEventListener('touchmove',function(e){if(S.cropDrag){e.preventDefault();doDrag(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
+document.addEventListener('mouseup',function(){S.cropDrag=false;});
+document.addEventListener('touchend',function(){S.cropDrag=false;});
+
+function startDrag(cx,cy,h){
+  S.cropDrag=true; S.cropHandle=h; S.cropSx=cx; S.cropSy=cy;
+  var b=document.getElementById('cropBox');
+  S.cropOb={x:parseFloat(b.style.left),y:parseFloat(b.style.top),w:parseFloat(b.style.width),h:parseFloat(b.style.height)};
+}
+function doDrag(cx,cy){
+  var dx=cx-S.cropSx,dy=cy-S.cropSy,MIN=50;
+  var x=S.cropOb.x,y=S.cropOb.y,w=S.cropOb.w,h=S.cropOb.h,hd=S.cropHandle;
+  if(hd==='move'){x+=dx;y+=dy;}
+  else{
+    if(hd==='tl'||hd==='ml'){var nw=w-dx;if(nw>MIN){x+=dx;w=nw;}}
+    if(hd==='tr'||hd==='mr'){w=Math.max(MIN,w+dx);}
+    if(hd==='tl'||hd==='tm'){var nh=h-dy;if(nh>MIN){y+=dy;h=nh;}}
+    if(hd==='bl'||hd==='bm'){h=Math.max(MIN,h+dy);}
+    if(hd==='br'){w=Math.max(MIN,w+dx);h=Math.max(MIN,h+dy);}
+    if(hd==='tr'){w=Math.max(MIN,w+dx);var nh2=h-dy;if(nh2>MIN){y+=dy;h=nh2;}}
+    if(hd==='bl'){var nw2=w-dx;if(nw2>MIN){x+=dx;w=nw2;}h=Math.max(MIN,h+dy);}
   }
-  setCropBox(x, y, w, h);
+  setCropBox(x,y,w,h);
 }
-
-window.applyCrop = function () {
-  const img = document.getElementById('cropImg');
-  const dW = img.offsetWidth, dH = img.offsetHeight;
-  const scX = img.naturalWidth / dW, scY = img.naturalHeight / dH;
-  const { x, y, w, h } = APP.cropState.ob;
-  const tc = document.createElement('canvas');
-  tc.width = Math.round(w * scX); tc.height = Math.round(h * scY);
-  tc.getContext('2d').drawImage(APP.origImg, Math.round(x*scX), Math.round(y*scY), tc.width, tc.height, 0, 0, tc.width, tc.height);
-  const cropped = new Image();
-  cropped.onload = () => {
-    APP.workImg = cropped;
-    showEditPreview(cropped);
-    closeCropModal();
-    toast('ok', 'Crop applied! Generating…');
+function applyCrop(){
+  var img=document.getElementById('cropImg');
+  var dW=img.offsetWidth,dH=img.offsetHeight;
+  var scX=img.naturalWidth/dW,scY=img.naturalHeight/dH;
+  var b=S.cropOb;
+  var tc=document.createElement('canvas');
+  tc.width=Math.round(b.w*scX); tc.height=Math.round(b.h*scY);
+  tc.getContext('2d').drawImage(S.origImg,Math.round(b.x*scX),Math.round(b.y*scY),tc.width,tc.height,0,0,tc.width,tc.height);
+  var cropped=new Image();
+  cropped.onload=function(){
+    S.workImg=cropped; renderEditPreview(cropped);
+    closeCrop(); showToast('ok','Crop applied! Generating…');
     generatePassport();
   };
-  cropped.src = tc.toDataURL('image/png');
-};
+  cropped.src=tc.toDataURL('image/png');
+}
 
-/* ── DOWNLOAD ─────────────────────────────────────────── */
-window.downloadSingle = function () {
-  if (!APP.passURL) { toast('err', 'Generate a photo first'); return; }
-  const a = document.createElement('a');
-  a.href = APP.passURL; a.download = 'passport-photo.png'; a.click();
-  toast('ok', '✓ Photo saved!');
-};
-
-window.downloadSheet = function () {
-  if (!APP.passURL) { toast('err', 'Generate a photo first'); return; }
-  const sc = document.createElement('canvas');
-  sc.width = 900; sc.height = 620;
-  const ctx = sc.getContext('2d');
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 900, 620);
-  const pw = Math.round((900 - 70) / 2);
-  const ph = Math.round(pw * (APP.outH / APP.outW));
-  const pos = [[20,20],[pw+50,20],[20,ph+40],[pw+50,ph+40]];
-  const im = new Image();
-  im.onload = () => {
-    pos.forEach(([x,y]) => ctx.drawImage(im, x, y, pw, ph));
-    const a = document.createElement('a');
-    a.href = sc.toDataURL('image/png'); a.download = 'passport-sheet.png'; a.click();
-    toast('ok', '✓ Sheet downloaded!');
+/* ══════════════════════════════════════════════════════
+   DOWNLOAD & SHARE
+══════════════════════════════════════════════════════ */
+function dlSingle(){
+  if(!S.passURL){showToast('err','Generate a photo first');return;}
+  var a=document.createElement('a'); a.href=S.passURL; a.download='passport-photo.png'; a.click();
+  showToast('ok','✓ Photo saved!');
+}
+function dlSheet(){
+  if(!S.passURL){showToast('err','Generate a photo first');return;}
+  var sc=document.createElement('canvas'); sc.width=900; sc.height=620;
+  var ctx=sc.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,900,620);
+  var pw=Math.round((900-70)/2), ph=Math.round(pw*(S.outH/S.outW));
+  var pos=[[20,20],[pw+50,20],[20,ph+40],[pw+50,ph+40]];
+  var im=new Image();
+  im.onload=function(){
+    pos.forEach(function(p){ctx.drawImage(im,p[0],p[1],pw,ph);});
+    var a=document.createElement('a'); a.href=sc.toDataURL('image/png'); a.download='passport-sheet.png'; a.click();
+    showToast('ok','✓ Sheet downloaded!');
   };
-  im.src = APP.passURL;
-};
-
-window.sharePhoto = async function () {
-  if (!APP.passURL) return;
-  if (!navigator.share) { downloadSingle(); return; }
-  try {
-    const res = await fetch(APP.passURL);
-    const blob = await res.blob();
-    const file = new File([blob], 'passport-photo.png', { type: 'image/png' });
-    await navigator.share({ files: [file], title: 'Passport Photo', text: 'My passport photo by Appozi' });
-  } catch (e) { downloadSingle(); }
-};
-
-/* ── HISTORY ──────────────────────────────────────────── */
-function saveToHistory(url) {
-  APP.history.unshift({ url, date: new Date().toLocaleDateString() });
-  if (APP.history.length > 12) APP.history = APP.history.slice(0, 12);
-  try { localStorage.setItem('ppHistory', JSON.stringify(APP.history.map(h => ({ url: h.url.slice(0, 200), date: h.date })))); } catch (e) {}
+  im.src=S.passURL;
+}
+async function sharePhoto(){
+  if(!S.passURL){dlSingle();return;}
+  if(!navigator.share){dlSingle();return;}
+  try{
+    var res=await fetch(S.passURL);
+    var blob=await res.blob();
+    var file=new File([blob],'passport-photo.png',{type:'image/png'});
+    await navigator.share({files:[file],title:'Passport Photo',text:'My passport photo by Appozi'});
+  }catch(e){dlSingle();}
 }
 
-function loadHistory() {
-  try {
-    const h = JSON.parse(localStorage.getItem('ppHistory') || '[]');
-    // Store full URLs in memory; localStorage may truncate
-    APP.history = h;
-  } catch (e) {}
+/* ══════════════════════════════════════════════════════
+   HISTORY
+══════════════════════════════════════════════════════ */
+function saveHistory(url){
+  S.history.unshift({url,date:new Date().toLocaleDateString()});
+  if(S.history.length>12) S.history=S.history.slice(0,12);
+  try{localStorage.setItem('pph',JSON.stringify(S.history));}catch(e){}
 }
-
-function renderHistory() {
-  const grid = document.getElementById('historyGrid');
-  const empty = document.getElementById('historyEmpty');
-  if (!grid) return;
-  if (APP.history.length === 0) {
-    grid.style.display = 'none'; if (empty) empty.style.display = 'block';
-    return;
-  }
-  grid.style.display = 'grid'; if (empty) empty.style.display = 'none';
-  grid.innerHTML = APP.history.map((h, i) => `
-    <div class="history-item" onclick="reuseHistory(${i})">
-      <img src="${h.url}" alt="">
-      <div class="history-item-del" onclick="deleteHistory(event,${i})">✕</div>
-    </div>`).join('');
+function loadHistory(){
+  try{var h=JSON.parse(localStorage.getItem('pph')||'[]');S.history=h;}catch(e){}
 }
-
-window.reuseHistory = function (i) {
-  APP.passURL = APP.history[i].url;
-  renderResultScreen();
-  goScreen('result');
-};
-window.deleteHistory = function (e, i) {
-  e.stopPropagation();
-  APP.history.splice(i, 1);
-  renderHistory();
-};
-
-/* ── INSTALL PROMPT ───────────────────────────────────── */
-let installPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  installPrompt = e;
-  const banner = document.getElementById('installBanner');
-  if (banner) banner.classList.add('vis');
-});
-window.installApp = async function () {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  const { outcome } = await installPrompt.userChoice;
-  if (outcome === 'accepted') {
-    const banner = document.getElementById('installBanner');
-    if (banner) banner.classList.remove('vis');
-    installPrompt = null;
-  }
-};
-
-/* ── UI HELPERS ───────────────────────────────────────── */
-function showProc(on, step = '', pct = 0) {
-  const ov = document.getElementById('procOverlay');
-  if (ov) ov.style.display = on ? 'flex' : 'none';
-  if (on) setProc(step, pct);
+function renderHistory(){
+  var grid=document.getElementById('histGrid');
+  var empty=document.getElementById('histEmpty');
+  if(!grid)return;
+  if(S.history.length===0){grid.style.display='none';if(empty)empty.style.display='block';return;}
+  grid.style.display='grid'; if(empty)empty.style.display='none';
+  grid.innerHTML=S.history.map(function(h,i){
+    return '<div class="hist-item" onclick="useHistory('+i+')">'
+    +'<img src="'+h.url+'" alt="">'
+    +'<div class="hist-del" onclick="delHistory(event,'+i+')">✕</div></div>';
+  }).join('');
 }
-function setProc(text, pct) {
-  const st = document.getElementById('procStep');
-  const fill = document.getElementById('procFill');
-  if (st) st.textContent = text;
-  if (fill) fill.style.width = pct + '%';
+function useHistory(i){ S.passURL=S.history[i].url; renderResult(); gotoTab('result'); }
+function delHistory(e,i){ e.stopPropagation(); S.history.splice(i,1); renderHistory(); }
+
+/* ══════════════════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════════════════ */
+function showProc(on,step,pct){
+  var ov=document.getElementById('procOv');
+  if(ov) ov.style.display=on?'flex':'none';
+  if(on) setStep(step,pct||0);
 }
+function setStep(t,p){
+  var s=document.getElementById('procStep'); if(s) s.textContent=t;
+  var f=document.getElementById('procFill'); if(f) f.style.width=(p||0)+'%';
+}
+var _tt;
+function showToast(type,msg){
+  var el=document.getElementById('toast');
+  if(!el)return;
+  el.className='show '+type;
+  el.innerHTML='<span>'+{ok:'✓',err:'✕',wrn:'⚠'}[type]+'</span> '+msg;
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.classList.remove('show');},3800);
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
-let toastTimer;
-window.toast = function (type, msg) {
-  const el = document.getElementById('toast');
-  if (!el) return;
-  el.className = 'show ' + type;
-  el.innerHTML = '<span>' + { ok:'✓', err:'✕', wrn:'⚠' }[type] + '</span> ' + msg;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3800);
-};
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-/* ── INIT ─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
 loadHistory();
-goScreen('upload');
-
-// Close crop modal on backdrop tap
-const cbd = document.getElementById('cropBackdrop');
-if (cbd) cbd.addEventListener('click', closeCropModal);
-
-// Register PWA
-if ('serviceWorker' in navigator) {
-  
-}
-
-console.log('📸 Passport Photo Maker by Appozi — Ready');
-
 </script>
 </body>
 </html>
